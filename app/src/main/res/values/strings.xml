@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Trade.it LOL</string>
+    <string name="action_settings">Settings LOL</string>
+
+    <string name="trade_button">BUTTAN</string>
+    <string name="hint">TYPE THINGS</string>
+    <string name="password_edittext_hint">Password</string>
+    <string name="username_edittext_hint">Username</string>
+
+    <string-array name="brokers_array">
+        <item>Dummy</item>
+        <item>TD</item>
+        <item>Etrade</item>
+        <item>Scottrade</item>
+        <item>Schwabs</item>
+        <item>Fidelity</item>
+        <item>Tradier</item>
+        <item>OptionsHouse</item>
+        <item>Robinhood</item>
+        <item>TradeStation</item>
+        <item>IB</item>
+        <item>TradeKing</item>
+        <item>DriveWealth</item>
+    </string-array>
+
+</resources>
