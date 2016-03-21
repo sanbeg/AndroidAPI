@@ -15,13 +15,22 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
+import it.trade.tradeit.API.TradeItClient;
+
 public class TradingActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
+    private static final String API_KEY = "tradeit-test-api-key";
+
     TextView outputTextView;
     Button tradeButton;
     EditText usernameEditText;
     EditText passwordEditText;
     Spinner brokerSpinner;
-
+    TradeItClient tradeItClient;
     String selectedBroker;
 
     @Override
@@ -31,15 +40,8 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-//
-//       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+
+        tradeItClient = new TradeItClient(API_KEY);
 
         outputTextView = (TextView) findViewById(R.id.output_textview);
         outputTextView.setMovementMethod(new ScrollingMovementMethod());
@@ -97,14 +99,14 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
-        trade(selectedBroker, username, password);
+        link(selectedBroker, username, password);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         selectedBroker = parent.getItemAtPosition(position).toString();
 
-        if (selectedBroker == "Dummy") {
+        if (selectedBroker.equals("Dummy")) {
             usernameEditText.setText("dummy");
             passwordEditText.setText("dummy");
         }
@@ -115,15 +117,52 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         selectedBroker = "";
     }
 
-    private void trade(String broker, String username, String password) {
+    protected void testBroker() {
+        // TODO:
+    }
+
+    private void link(String broker, String username, String password) {
         outputTextView.setText("HERE WE GO...");
         outputTextView.append("\n");
 
-        // TODO: ADD SERVICE CALLS TO
-        // https://github.com/obaro/SimpleWebAPI/blob/master/app/src/main/java/com/sample/foo/simplewebapi/MainActivity.java
-        // http://www.androidauthority.com/use-remote-web-api-within-android-app-617869/
-        // https://www.raywenderlich.com/78578/android-tutorial-for-beginners-part-3
-        // http://code.tutsplus.com/tutorials/android-sdk-making-remote-api-calls--mobile-17568
+        JsonHttpResponseHandler jsonHttpResponseHandler = new JsonHttpResponseHandler() {
+            String responseString = "";
 
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                outputTextView.append("\n=====\n\nSTATUS: " + statusCode + "\n");
+
+                try {
+                    responseString = response.toString(2);
+                } catch(Exception e) {
+                    responseString = "COULD NOT PARSE: " + e;
+                }
+
+                outputTextView.append(responseString + "\n");
+
+                testBroker();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                outputTextView.append("\n=====\n\nSTATUS: " + statusCode + "\n");
+
+                try {
+                    responseString = errorResponse.toString(2);
+                } catch(Exception e) {
+                    responseString = "COULD NOT PARSE: " + e;
+                }
+
+                outputTextView.append(responseString + "\n");
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                outputTextView.append("\n=====\n\nSTATUS: " + statusCode);
+                outputTextView.append("\nERROR: " + responseString + "\nException: " + throwable + "\n");
+            }
+        };
+
+        tradeItClient.oAuthLink(broker, username, password, jsonHttpResponseHandler);
     }
 }

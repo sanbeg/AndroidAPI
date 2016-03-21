@@ -37,7 +37,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:text="@string/trade_button" />
-        <!--style="@style/Base.Widget.AppCompat.Button.Borderless"-->
 
     </LinearLayout>
 
@@ -59,6 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="10sp"
             android:hint="@string/username_edittext_hint" />
 
         <EditText
@@ -66,6 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textSize="10sp"
             android:hint="@string/password_edittext_hint"
             android:password="true" />
 
@@ -79,7 +80,7 @@
         android:gravity="bottom"
         android:scrollbars="vertical"
         android:text="..."
-        android:textSize="8sp"
+        android:textSize="6sp"
         android:typeface="monospace" />
 
 </LinearLayout>
