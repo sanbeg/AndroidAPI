@@ -15,12 +15,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
-import it.trade.tradeit.API.TradeItClient;
+import it.trade.tradeit.API.TradeItAPIService;
+import it.trade.tradeit.model.TradeItOAuthLinkRequest;
+import it.trade.tradeit.model.TradeItOAuthLinkResponse;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class TradingActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     private static final String API_KEY = "tradeit-test-api-key";
@@ -30,7 +30,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     EditText usernameEditText;
     EditText passwordEditText;
     Spinner brokerSpinner;
-    TradeItClient tradeItClient;
+    TradeItAPIService tradeItAPIService;
     String selectedBroker;
 
     @Override
@@ -41,7 +41,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tradeItClient = new TradeItClient(API_KEY);
+        tradeItAPIService = new TradeItAPIService(API_KEY);
 
         outputTextView = (TextView) findViewById(R.id.output_textview);
         outputTextView.setMovementMethod(new ScrollingMovementMethod());
@@ -57,18 +57,12 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         brokerSpinner.setOnItemSelectedListener(this);
 
 
-
-
-
         String[] brokers = getResources().getStringArray(R.array.brokers_array);
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, brokers);
 
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         brokerSpinner.setAdapter(dataAdapter);
-
-
-
 
 
 //        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.brokers_array, android.R.layout.simple_spinner_item);
@@ -117,52 +111,32 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         selectedBroker = "";
     }
 
-    protected void testBroker() {
-        // TODO:
-    }
+//    protected void testBroker(String userToken, String userId) {
+//
+//    }
 
     private void link(String broker, String username, String password) {
-        outputTextView.setText("HERE WE GO...");
-        outputTextView.append("\n");
+        outputTextView.setText("HERE WE GO...\n");
 
-        JsonHttpResponseHandler jsonHttpResponseHandler = new JsonHttpResponseHandler() {
-            String responseString = "";
 
+        TradeItOAuthLinkRequest oAuthLinkRequest = new TradeItOAuthLinkRequest(username, password, broker);
+        Call<TradeItOAuthLinkResponse> call = tradeItAPIService.oAuthLink(oAuthLinkRequest);
+
+        outputTextView.append("\n=====\n\n CALL: " + call + "\n");
+
+        call.enqueue(new Callback<TradeItOAuthLinkResponse>() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                outputTextView.append("\n=====\n\nSTATUS: " + statusCode + "\n");
+            public void onResponse(Call<TradeItOAuthLinkResponse> call, Response<TradeItOAuthLinkResponse> response) {
+                int statusCode = response.code();
+                TradeItOAuthLinkResponse oAuthLinkResponse = response.body();
 
-                try {
-                    responseString = response.toString(2);
-                } catch(Exception e) {
-                    responseString = "COULD NOT PARSE: " + e;
-                }
-
-                outputTextView.append(responseString + "\n");
-
-                testBroker();
+                outputTextView.append("\n=====\n\n" + oAuthLinkResponse + "\n");
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                outputTextView.append("\n=====\n\nSTATUS: " + statusCode + "\n");
-
-                try {
-                    responseString = errorResponse.toString(2);
-                } catch(Exception e) {
-                    responseString = "COULD NOT PARSE: " + e;
-                }
-
-                outputTextView.append(responseString + "\n");
+            public void onFailure(Call<TradeItOAuthLinkResponse> call, Throwable t) {
+                outputTextView.append("\n=====\n\nERROR: " + t + "\n");
             }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                outputTextView.append("\n=====\n\nSTATUS: " + statusCode);
-                outputTextView.append("\nERROR: " + responseString + "\nException: " + throwable + "\n");
-            }
-        };
-
-        tradeItClient.oAuthLink(broker, username, password, jsonHttpResponseHandler);
+        });
     }
 }
