@@ -1,7 +1,13 @@
 package it.trade.tradeit.API;
 
+import it.trade.tradeit.model.TradeItAuthenticateRequest;
+import it.trade.tradeit.model.TradeItAuthenticateResponse;
 import it.trade.tradeit.model.TradeItOAuthLinkRequest;
 import it.trade.tradeit.model.TradeItOAuthLinkResponse;
+import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderRequest;
+import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderResponse;
+import it.trade.tradeit.model.TradeItPreviewStockOrEtfOrderRequest;
+import it.trade.tradeit.model.TradeItPreviewStockOrEtfOrderResponse;
 import it.trade.tradeit.model.TradeItRequestWithKey;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -16,8 +22,7 @@ public class TradeItAPIService implements TradeItAPI {
     public TradeItAPIService(String apiKey) {
         TradeItRequestWithKey.API_KEY = apiKey;
 
-
-        // TODO: REMOVE THIS LOGGING
+        // TODO: TURN OFF LOGGING
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
@@ -35,5 +40,17 @@ public class TradeItAPIService implements TradeItAPI {
 
     public Call<TradeItOAuthLinkResponse> oAuthLink(@Body TradeItOAuthLinkRequest request) {
         return tradeItAPI.oAuthLink(request);
+    }
+
+    public Call<TradeItAuthenticateResponse> authenticate(@Body TradeItAuthenticateRequest request) {
+        return tradeItAPI.authenticate(request);
+    }
+
+    public Call<TradeItPreviewStockOrEtfOrderResponse> previewStockOrEtfOrder(@Body TradeItPreviewStockOrEtfOrderRequest request) {
+        return tradeItAPI.previewStockOrEtfOrder(request);
+    }
+
+    public Call<TradeItPlaceStockOrEtfOrderResponse> placeStockOrEtfOrder(@Body TradeItPlaceStockOrEtfOrderRequest request) {
+        return tradeItAPI.placeStockOrEtfOrder(request);
     }
 }

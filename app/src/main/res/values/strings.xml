@@ -2,10 +2,10 @@
     <string name="app_name">Trade.it LOL</string>
     <string name="action_settings">Settings LOL</string>
 
-    <string name="trade_button">BUTTAN</string>
-    <string name="hint">TYPE THINGS</string>
+    <string name="trade_button">GO</string>
     <string name="password_edittext_hint">Password</string>
     <string name="username_edittext_hint">Username</string>
+    <string name="clear_button">Clear</string>
 
     <string-array name="brokers_array">
         <item>Dummy</item>
@@ -21,6 +21,24 @@
         <item>IB</item>
         <item>TradeKing</item>
         <item>DriveWealth</item>
+    </string-array>
+
+    <string-array name="actions_array">
+        <item>Auth</item>
+        <item>Trade</item>
+        <item>Account</item>
+        <!--<item>oAuthLink</item>-->
+        <!--<item>Authenticate</item>-->
+        <!--<item>Security Question</item>-->
+        <!--<item>Close Session</item>-->
+        <!--<item>Keep Alive</item>-->
+        <!--<item>oAuth Update</item>-->
+        <!--<item>oAuth Delete</item>-->
+        <!--<item>Preview</item>-->
+        <!--<item>Trade</item>-->
+        <!--<item>Orders</item>-->
+        <!--<item>Balance</item>-->
+        <!--<item>Positions</item>-->
     </string-array>
 
 </resources>

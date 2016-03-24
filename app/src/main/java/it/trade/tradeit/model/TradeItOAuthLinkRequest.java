@@ -29,7 +29,6 @@ public class TradeItOAuthLinkRequest extends TradeItRequestWithKey {
                 "id='" + id + '\'' +
                 ", password='" + password + '\'' +
                 ", broker='" + broker + '\'' +
-                ", apiKey='" + apiKey + '\'' +
-                '}';
+                "}, " + super.toString();
     }
 }

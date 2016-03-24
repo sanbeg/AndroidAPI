@@ -14,4 +14,11 @@ public class TradeItRequestWithKey {
     public TradeItRequestWithKey() {
         this.apiKey = API_KEY;
     }
+
+    @Override
+    public String toString() {
+        return "TradeItRequestWithKey{" +
+                "apiKey='" + apiKey + '\'' +
+                '}';
+    }
 }

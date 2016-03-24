@@ -4,9 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -16,8 +13,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import it.trade.tradeit.API.TradeItAPIService;
+import it.trade.tradeit.model.TradeItAuthenticateRequest;
+import it.trade.tradeit.model.TradeItAuthenticateResponse;
 import it.trade.tradeit.model.TradeItOAuthLinkRequest;
 import it.trade.tradeit.model.TradeItOAuthLinkResponse;
+import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderRequest;
+import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderResponse;
+import it.trade.tradeit.model.TradeItPreviewStockOrEtfOrderRequest;
+import it.trade.tradeit.model.TradeItPreviewStockOrEtfOrderResponse;
+import it.trade.tradeit.model.TradeItRequestWithSession;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -27,11 +31,17 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     TextView outputTextView;
     Button tradeButton;
+    Button clearButton;
     EditText usernameEditText;
     EditText passwordEditText;
     Spinner brokerSpinner;
+    Spinner actionSpinner;
+
     TradeItAPIService tradeItAPIService;
     String selectedBroker;
+    String selectedAction;
+    String sessionToken;
+    String accountNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,94 +59,192 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         usernameEditText = (EditText) findViewById(R.id.username_edittext);
         passwordEditText = (EditText) findViewById(R.id.password_edittext);
 
-        tradeButton = (Button) findViewById(R.id.trade_button);
+        tradeButton = (Button) findViewById(R.id.go_button);
         tradeButton.setOnClickListener(this);
 
+        clearButton = (Button) findViewById(R.id.clear_button);
+        clearButton.setOnClickListener(this);
 
         brokerSpinner = (Spinner) findViewById(R.id.broker_spinner);
         brokerSpinner.setOnItemSelectedListener(this);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.brokers_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        brokerSpinner.setAdapter(adapter);
 
-
-        String[] brokers = getResources().getStringArray(R.array.brokers_array);
-
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, brokers);
-
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        brokerSpinner.setAdapter(dataAdapter);
-
-
-//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.brokers_array, android.R.layout.simple_spinner_item);
-//
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        brokerSpinner.setAdapter(adapter);
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_trading, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.i("LOLWUT", "ID: " + item.getItemId() + ", TITLE: " + item.getTitle());
-
-        return super.onOptionsItemSelected(item);
+        actionSpinner = (Spinner) findViewById(R.id.action_spinner);
+        actionSpinner.setOnItemSelectedListener(this);
+        adapter = ArrayAdapter.createFromResource(this, R.array.actions_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        actionSpinner.setAdapter(adapter);
     }
 
     @Override
     public void onClick(View v) {
-        Log.i("LOLWUT", "BROKER: " + selectedBroker);
+        switch (v.getId()) {
+            case R.id.clear_button: {
+                outputTextView.setText("...");
+                break;
+            }
+            case R.id.go_button: {
+                switch (selectedAction) {
+                    case "Auth":
+                        testAuthentication();
+                        break;
+                    case "Trade":
+                        testTrading(accountNumber);
+                        break;
+                    case "Account":
+                        testAccount(accountNumber);
+                        break;
+                }
 
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        switch (parent.getId()) {
+            case R.id.action_spinner: {
+                selectedAction = parent.getItemAtPosition(position).toString();
+
+                break;
+            }
+            case R.id.broker_spinner: {
+                selectedBroker = parent.getItemAtPosition(position).toString();
+
+                if (selectedBroker.equals("Dummy")) {
+                    usernameEditText.setText("dummy");
+                    passwordEditText.setText("dummy");
+                }
+
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
+
+    private void testAuthentication() {
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
         link(selectedBroker, username, password);
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        selectedBroker = parent.getItemAtPosition(position).toString();
+    private void testTrading(String accountNumber) {
+        preview();
+    }
 
-        if (selectedBroker.equals("Dummy")) {
-            usernameEditText.setText("dummy");
-            passwordEditText.setText("dummy");
+    private void testAccount(String accountNumber) {
+    }
+
+    private void link(String broker, String username, String password) {
+        TradeItOAuthLinkRequest oAuthLinkRequest = new TradeItOAuthLinkRequest(username, password, broker);
+        Call<TradeItOAuthLinkResponse> call = tradeItAPIService.oAuthLink(oAuthLinkRequest);
+        appendRequest(oAuthLinkRequest);
+
+        call.enqueue(new CallbackWithError<TradeItOAuthLinkResponse>() {
+            @Override
+            public void onResponse(Call<TradeItOAuthLinkResponse> call, Response<TradeItOAuthLinkResponse> response) {
+                TradeItOAuthLinkResponse oAuthLinkResponse = response.body();
+                appendResponse(oAuthLinkResponse);
+
+                // TODO: THIS SHOULD BE HANDLED INTERNAL TO THE SERVICE
+                if (oAuthLinkResponse.status.equals("SUCCESS")) {
+                    auth(oAuthLinkResponse.userToken, oAuthLinkResponse.userId);
+                }
+            }
+
+//            @Override
+//            public void onFailure(Call<TradeItOAuthLinkResponse> call, Throwable t) {
+//                appendError(t);
+//            }
+        });
+    }
+
+    private void auth(String userToken, String userId) {
+        TradeItAuthenticateRequest authRequest = new TradeItAuthenticateRequest(userToken, userId, Long.toString(System.currentTimeMillis()));
+        Call<TradeItAuthenticateResponse> call = tradeItAPIService.authenticate(authRequest);
+        appendRequest(authRequest);
+
+        call.enqueue(new CallbackWithError<TradeItAuthenticateResponse>() {
+            @Override
+            public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
+                TradeItAuthenticateResponse authResponse = response.body();
+                appendResponse(authResponse);
+
+                // TODO: THIS SHOULD BE HANDLED INTERNAL TO THE SERVICE
+                TradeItRequestWithSession.SESSION_TOKEN = authResponse.token;
+                accountNumber = authResponse.accounts.get(0).accountNumber;
+            }
+
+//            @Override
+//            public void onFailure(Call<TradeItAuthenticateResponse> call, Throwable t) {
+//                appendError(t);
+//            }
+        });
+    }
+
+    private void preview() {
+        TradeItPreviewStockOrEtfOrderRequest previewRequest = new TradeItPreviewStockOrEtfOrderRequest(accountNumber,
+                                                                                                       "buy",
+                                                                                                       "1",
+                                                                                                       "CMG",
+                                                                                                       "stopLimit",
+                                                                                                       "400",
+                                                                                                       "600",
+                                                                                                       "day");
+
+        Call<TradeItPreviewStockOrEtfOrderResponse> call = tradeItAPIService.previewStockOrEtfOrder(previewRequest);
+        appendRequest(previewRequest);
+
+        call.enqueue(new CallbackWithError<TradeItPreviewStockOrEtfOrderResponse>() {
+            @Override
+            public void onResponse(Call<TradeItPreviewStockOrEtfOrderResponse> call, Response<TradeItPreviewStockOrEtfOrderResponse> response) {
+                TradeItPreviewStockOrEtfOrderResponse previewResponse = response.body();
+                appendResponse(previewResponse);
+
+                if (previewResponse.status.equals("REVIEW_ORDER")) {
+                    trade(previewResponse.orderId);
+                }
+            }
+        });
+    }
+
+    private void trade(String orderId) {
+        TradeItPlaceStockOrEtfOrderRequest tradeRequest = new TradeItPlaceStockOrEtfOrderRequest(orderId);
+
+        Call<TradeItPlaceStockOrEtfOrderResponse> call = tradeItAPIService.placeStockOrEtfOrder(tradeRequest);
+        appendRequest(tradeRequest);
+
+        call.enqueue(new CallbackWithError<TradeItPlaceStockOrEtfOrderResponse>() {
+            @Override
+            public void onResponse(Call<TradeItPlaceStockOrEtfOrderResponse> call, Response<TradeItPlaceStockOrEtfOrderResponse> response) {
+                TradeItPlaceStockOrEtfOrderResponse tradeResponse = response.body();
+                appendResponse(tradeResponse);
+            }
+        });
+    }
+
+    private abstract class CallbackWithError<T> implements Callback<T> {
+        public void onFailure(Call call, Throwable t) {
+            appendError(t);
         }
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        selectedBroker = "";
+    private void appendError(Throwable t) {
+        outputTextView.append("\n=====\n\nERROR: " + t + "\n");
     }
 
-//    protected void testBroker(String userToken, String userId) {
-//
-//    }
+    private void appendRequest(Object request) {
+        outputTextView.append("\n=====\n\nREQUEST: " + request + "\n");
+    }
 
-    private void link(String broker, String username, String password) {
-        outputTextView.setText("HERE WE GO...\n");
-
-
-        TradeItOAuthLinkRequest oAuthLinkRequest = new TradeItOAuthLinkRequest(username, password, broker);
-        Call<TradeItOAuthLinkResponse> call = tradeItAPIService.oAuthLink(oAuthLinkRequest);
-
-        outputTextView.append("\n=====\n\n CALL: " + call + "\n");
-
-        call.enqueue(new Callback<TradeItOAuthLinkResponse>() {
-            @Override
-            public void onResponse(Call<TradeItOAuthLinkResponse> call, Response<TradeItOAuthLinkResponse> response) {
-                int statusCode = response.code();
-                TradeItOAuthLinkResponse oAuthLinkResponse = response.body();
-
-                outputTextView.append("\n=====\n\n" + oAuthLinkResponse + "\n");
-            }
-
-            @Override
-            public void onFailure(Call<TradeItOAuthLinkResponse> call, Throwable t) {
-                outputTextView.append("\n=====\n\nERROR: " + t + "\n");
-            }
-        });
+    private void appendResponse(Object response) {
+        outputTextView.append("\n=====\n\nRESPONSE: " + response + "\n");
     }
 }
