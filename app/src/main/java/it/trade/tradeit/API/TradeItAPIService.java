@@ -2,6 +2,10 @@ package it.trade.tradeit.API;
 
 import it.trade.tradeit.model.TradeItAuthenticateRequest;
 import it.trade.tradeit.model.TradeItAuthenticateResponse;
+import it.trade.tradeit.model.TradeItGetAccountOverviewRequest;
+import it.trade.tradeit.model.TradeItGetAccountOverviewResponse;
+import it.trade.tradeit.model.TradeItGetPositionsRequest;
+import it.trade.tradeit.model.TradeItGetPositionsResponse;
 import it.trade.tradeit.model.TradeItOAuthLinkRequest;
 import it.trade.tradeit.model.TradeItOAuthLinkResponse;
 import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderRequest;
@@ -52,5 +56,13 @@ public class TradeItAPIService implements TradeItAPI {
 
     public Call<TradeItPlaceStockOrEtfOrderResponse> placeStockOrEtfOrder(@Body TradeItPlaceStockOrEtfOrderRequest request) {
         return tradeItAPI.placeStockOrEtfOrder(request);
+    }
+
+    public Call<TradeItGetAccountOverviewResponse> getAccountOverview(@Body TradeItGetAccountOverviewRequest request) {
+        return tradeItAPI.getAccountOverview(request);
+    }
+
+    public Call<TradeItGetPositionsResponse> getPositions(@Body TradeItGetPositionsRequest request) {
+        return tradeItAPI.getPositions(request);
     }
 }

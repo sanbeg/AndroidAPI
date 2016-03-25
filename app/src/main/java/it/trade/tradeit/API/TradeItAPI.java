@@ -2,6 +2,10 @@ package it.trade.tradeit.API;
 
 import it.trade.tradeit.model.TradeItAuthenticateRequest;
 import it.trade.tradeit.model.TradeItAuthenticateResponse;
+import it.trade.tradeit.model.TradeItGetAccountOverviewRequest;
+import it.trade.tradeit.model.TradeItGetAccountOverviewResponse;
+import it.trade.tradeit.model.TradeItGetPositionsRequest;
+import it.trade.tradeit.model.TradeItGetPositionsResponse;
 import it.trade.tradeit.model.TradeItOAuthLinkRequest;
 import it.trade.tradeit.model.TradeItOAuthLinkResponse;
 import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderRequest;
@@ -25,4 +29,9 @@ public interface TradeItAPI {
     @POST("/api/v1/order/placeStockOrEtfOrder")
     Call<TradeItPlaceStockOrEtfOrderResponse> placeStockOrEtfOrder(@Body TradeItPlaceStockOrEtfOrderRequest request);
 
+    @POST("/api/v1/balance/getAccountOverview")
+    Call<TradeItGetAccountOverviewResponse> getAccountOverview(@Body TradeItGetAccountOverviewRequest request);
+
+    @POST("/api/v1/position/getPositions")
+    Call<TradeItGetPositionsResponse> getPositions(@Body TradeItGetPositionsRequest request);
 }

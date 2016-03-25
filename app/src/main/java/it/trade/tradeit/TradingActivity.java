@@ -15,6 +15,10 @@ import android.widget.TextView;
 import it.trade.tradeit.API.TradeItAPIService;
 import it.trade.tradeit.model.TradeItAuthenticateRequest;
 import it.trade.tradeit.model.TradeItAuthenticateResponse;
+import it.trade.tradeit.model.TradeItGetAccountOverviewRequest;
+import it.trade.tradeit.model.TradeItGetAccountOverviewResponse;
+import it.trade.tradeit.model.TradeItGetPositionsRequest;
+import it.trade.tradeit.model.TradeItGetPositionsResponse;
 import it.trade.tradeit.model.TradeItOAuthLinkRequest;
 import it.trade.tradeit.model.TradeItOAuthLinkResponse;
 import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderRequest;
@@ -140,6 +144,38 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void testAccount(String accountNumber) {
+        balances(accountNumber);
+        positions(accountNumber);
+    }
+
+    private void positions(String accountNumber) {
+        TradeItGetPositionsRequest positionsRequest = new TradeItGetPositionsRequest(accountNumber, null);
+
+        Call<TradeItGetPositionsResponse> call = tradeItAPIService.getPositions(positionsRequest);
+        appendRequest(positionsRequest);
+
+        call.enqueue(new CallbackWithError<TradeItGetPositionsResponse>() {
+            @Override
+            public void onResponse(Call<TradeItGetPositionsResponse> call, Response<TradeItGetPositionsResponse> response) {
+                TradeItGetPositionsResponse positionsResponse = response.body();
+                appendResponse(positionsResponse);
+            }
+        });
+    }
+
+    private void balances(String accountNumber) {
+        TradeItGetAccountOverviewRequest balanceRequest = new TradeItGetAccountOverviewRequest(accountNumber);
+
+        Call<TradeItGetAccountOverviewResponse> call = tradeItAPIService.getAccountOverview(balanceRequest);
+        appendRequest(balanceRequest);
+
+        call.enqueue(new CallbackWithError<TradeItGetAccountOverviewResponse>() {
+            @Override
+            public void onResponse(Call<TradeItGetAccountOverviewResponse> call, Response<TradeItGetAccountOverviewResponse> response) {
+                TradeItGetAccountOverviewResponse balanceResponse = response.body();
+                appendResponse(balanceResponse);
+            }
+        });
     }
 
     private void link(String broker, String username, String password) {
@@ -181,11 +217,6 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
                 TradeItRequestWithSession.SESSION_TOKEN = authResponse.token;
                 accountNumber = authResponse.accounts.get(0).accountNumber;
             }
-
-//            @Override
-//            public void onFailure(Call<TradeItAuthenticateResponse> call, Throwable t) {
-//                appendError(t);
-//            }
         });
     }
 
