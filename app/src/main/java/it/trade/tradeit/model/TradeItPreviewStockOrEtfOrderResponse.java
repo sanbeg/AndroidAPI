@@ -6,14 +6,10 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TradeItPreviewStockOrEtfOrderResponse {
+public class TradeItPreviewStockOrEtfOrderResponse extends TradeItResponse {
     @SerializedName("ackWarningsList")
     @Expose
     public List<String> ackWarningsList = new ArrayList<String>();
-
-    @SerializedName("longMessages")
-    @Expose
-    public Object longMessages;
 
     @SerializedName("orderDetails")
     @Expose
@@ -22,18 +18,6 @@ public class TradeItPreviewStockOrEtfOrderResponse {
     @SerializedName("orderId")
     @Expose
     public String orderId;
-
-    @SerializedName("shortMessage")
-    @Expose
-    public Object shortMessage;
-
-    @SerializedName("status")
-    @Expose
-    public String status;
-
-    @SerializedName("token")
-    @Expose
-    public String token;
 
     @SerializedName("warningsList")
     @Expose
@@ -141,12 +125,8 @@ public class TradeItPreviewStockOrEtfOrderResponse {
     public String toString() {
         return "TradeItPreviewStockOrEtfOrderResponse{" +
                 "ackWarningsList=" + ackWarningsList +
-                ", longMessages=" + longMessages +
                 ", orderDetails=" + orderDetails +
                 ", orderId=" + orderId +
-                ", shortMessage=" + shortMessage +
-                ", status='" + status + '\'' +
-                ", token='" + token + '\'' +
                 ", warningsList=" + warningsList +
                 "}, " + super.toString();
     }

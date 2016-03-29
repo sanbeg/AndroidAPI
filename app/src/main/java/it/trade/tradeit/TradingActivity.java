@@ -13,14 +13,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import it.trade.tradeit.API.TradeItAPIService;
+import it.trade.tradeit.model.TradeItGetAllTransactionsHistoryRequest;
 import it.trade.tradeit.model.TradeItAuthenticateRequest;
 import it.trade.tradeit.model.TradeItAuthenticateResponse;
 import it.trade.tradeit.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeit.model.TradeItGetAccountOverviewResponse;
+import it.trade.tradeit.model.TradeItGetAllOrderStatusRequest;
+import it.trade.tradeit.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeit.model.TradeItGetPositionsRequest;
 import it.trade.tradeit.model.TradeItGetPositionsResponse;
 import it.trade.tradeit.model.TradeItOAuthLinkRequest;
 import it.trade.tradeit.model.TradeItOAuthLinkResponse;
+import it.trade.tradeit.model.TradeItOrderStatusResponse;
 import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderResponse;
 import it.trade.tradeit.model.TradeItPreviewStockOrEtfOrderRequest;
@@ -146,6 +150,38 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     private void testAccount(String accountNumber) {
         balances(accountNumber);
         positions(accountNumber);
+        orders(accountNumber);
+        transactions(accountNumber);
+    }
+
+    private void orders(String accountNumber) {
+        TradeItGetAllOrderStatusRequest ordersRequest = new TradeItGetAllOrderStatusRequest(accountNumber);
+
+        Call<TradeItOrderStatusResponse> call = tradeItAPIService.getAllOrderStatus(ordersRequest);
+        appendRequest(ordersRequest);
+
+        call.enqueue(new CallbackWithError<TradeItOrderStatusResponse>() {
+            @Override
+            public void onResponse(Call<TradeItOrderStatusResponse> call, Response<TradeItOrderStatusResponse> response) {
+                TradeItOrderStatusResponse ordersResponse = response.body();
+                appendResponse(ordersResponse);
+            }
+        });
+    }
+
+    private void transactions(String accountNumber) {
+        TradeItGetAllTransactionsHistoryRequest transactionsRequest = new TradeItGetAllTransactionsHistoryRequest(accountNumber);
+
+        Call<TradeItGetAllTransactionsHistoryResponse> call = tradeItAPIService.getAllTransactionsHistory(transactionsRequest);
+        appendRequest(transactionsRequest);
+
+        call.enqueue(new CallbackWithError<TradeItGetAllTransactionsHistoryResponse>() {
+            @Override
+            public void onResponse(Call<TradeItGetAllTransactionsHistoryResponse> call, Response<TradeItGetAllTransactionsHistoryResponse> response) {
+                TradeItGetAllTransactionsHistoryResponse transactionsResponse = response.body();
+                appendResponse(transactionsResponse);
+            }
+        });
     }
 
     private void positions(String accountNumber) {

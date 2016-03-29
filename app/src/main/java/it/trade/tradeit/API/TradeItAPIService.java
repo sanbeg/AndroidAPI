@@ -2,12 +2,17 @@ package it.trade.tradeit.API;
 
 import it.trade.tradeit.model.TradeItAuthenticateRequest;
 import it.trade.tradeit.model.TradeItAuthenticateResponse;
+import it.trade.tradeit.model.TradeItCancelOrderRequest;
 import it.trade.tradeit.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeit.model.TradeItGetAccountOverviewResponse;
+import it.trade.tradeit.model.TradeItGetAllOrderStatusRequest;
+import it.trade.tradeit.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeit.model.TradeItGetPositionsRequest;
 import it.trade.tradeit.model.TradeItGetPositionsResponse;
+import it.trade.tradeit.model.TradeItGetSingleOrderStatusRequest;
 import it.trade.tradeit.model.TradeItOAuthLinkRequest;
 import it.trade.tradeit.model.TradeItOAuthLinkResponse;
+import it.trade.tradeit.model.TradeItOrderStatusResponse;
 import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderResponse;
 import it.trade.tradeit.model.TradeItPreviewStockOrEtfOrderRequest;
@@ -64,5 +69,21 @@ public class TradeItAPIService implements TradeItAPI {
 
     public Call<TradeItGetPositionsResponse> getPositions(@Body TradeItGetPositionsRequest request) {
         return tradeItAPI.getPositions(request);
+    }
+
+    public Call<TradeItOrderStatusResponse> getAllOrderStatus(@Body TradeItGetAllOrderStatusRequest request) {
+        return tradeItAPI.getAllOrderStatus(request);
+    }
+
+    public Call<TradeItOrderStatusResponse> getSingleOrderStatus(@Body TradeItGetSingleOrderStatusRequest request) {
+        return tradeItAPI.getSingleOrderStatus(request);
+    }
+
+    public Call<TradeItOrderStatusResponse> cancelOrder(@Body TradeItCancelOrderRequest request) {
+        return tradeItAPI.cancelOrder(request);
+    }
+
+    public Call<TradeItGetAllTransactionsHistoryResponse> getAllTransactionsHistory(@Body TradeItGetAllTransactionsHistoryRequest request) {
+        return tradeItAPI.getAllTransactionsHistory(request);
     }
 }

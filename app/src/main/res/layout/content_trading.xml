@@ -29,14 +29,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="10sp" />
+            android:textSize="14sp" />
 
         <Spinner
             android:id="@+id/action_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="10sp" />
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/go_button"
@@ -65,7 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="10sp"
+            android:textSize="14sp"
             android:hint="@string/username_edittext_hint" />
 
         <EditText
@@ -73,7 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="10sp"
+            android:textSize="14sp"
             android:hint="@string/password_edittext_hint"
             android:password="true" />
 
@@ -88,7 +88,7 @@
         android:gravity="bottom"
         android:scrollbars="vertical"
         android:text="..."
-        android:textSize="6sp"
+        android:textSize="10sp"
         android:typeface="monospace" />
 
     <Button

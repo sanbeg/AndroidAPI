@@ -29,11 +29,30 @@ public class TradeItAuthenticateResponse extends TradeItResponse {
         }
     }
 
+    @SerializedName("challengeImage")
+    @Expose
+    public String challengeImage;
+
+    @SerializedName("informationType")
+    @Expose
+    public String informationType;
+
+    @SerializedName("securityQuestion")
+    @Expose
+    public String securityQuestion;
+
+    @SerializedName("securityQuestionOptions")
+    @Expose
+    public List<String> securityQuestionOptions;
+
     @Override
     public String toString() {
         return "TradeItAuthenticateResponse{" +
-                "token='" + token + '\'' +
-                ", accounts=" + accounts +
+                "accounts=" + accounts +
+                ", challengeImage='" + challengeImage + '\'' +
+                ", informationType='" + informationType + '\'' +
+                ", securityQuestion='" + securityQuestion + '\'' +
+                ", securityQuestionOptions=" + securityQuestionOptions +
                 "}, " + super.toString();
     }
 }
