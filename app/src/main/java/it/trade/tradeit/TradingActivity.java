@@ -30,6 +30,7 @@ import it.trade.tradeit.model.TradeItPlaceStockOrEtfOrderResponse;
 import it.trade.tradeit.model.TradeItPreviewStockOrEtfOrderRequest;
 import it.trade.tradeit.model.TradeItPreviewStockOrEtfOrderResponse;
 import it.trade.tradeit.model.TradeItRequestWithSession;
+import it.trade.tradeit.model.TradeItResponse;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -252,6 +253,22 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
                 // TODO: THIS SHOULD BE HANDLED INTERNAL TO THE SERVICE
                 TradeItRequestWithSession.SESSION_TOKEN = authResponse.token;
                 accountNumber = authResponse.accounts.get(0).accountNumber;
+
+                ping();
+            }
+        });
+    }
+
+    private void ping() {
+        TradeItRequestWithSession pingRequest = new TradeItRequestWithSession();
+        Call<TradeItResponse> call = tradeItAPIService.keepSessionAlive(pingRequest);
+        appendRequest(pingRequest);
+
+        call.enqueue(new CallbackWithError<TradeItResponse>() {
+            @Override
+            public void onResponse(Call<TradeItResponse> call, Response<TradeItResponse> response) {
+                TradeItResponse pingResponse = response.body();
+                appendResponse(pingResponse);
             }
         });
     }

@@ -3,7 +3,6 @@ package it.trade.tradeit.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-
 public class TradeItOAuthLinkResponse extends TradeItResponse {
     @SerializedName("userToken")
     @Expose

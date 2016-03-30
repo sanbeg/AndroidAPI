@@ -13,4 +13,11 @@ public class TradeItRequestWithSession extends TradeItRequestWithKey {
     public TradeItRequestWithSession() {
         this.token = SESSION_TOKEN;
     }
+
+    @Override
+    public String toString() {
+        return "TradeItRequestWithSession{" +
+                "token='" + token + '\'' +
+                "}, " + super.toString();
+    }
 }
