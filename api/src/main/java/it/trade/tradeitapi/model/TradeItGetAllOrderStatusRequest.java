@@ -1,20 +1,20 @@
-package it.trade.tradeit.model;
+package it.trade.tradeitapi.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class TradeItGetAllTransactionsHistoryRequest extends TradeItRequestWithSession {
+public class TradeItGetAllOrderStatusRequest extends TradeItRequestWithSession {
     @SerializedName("accountNumber")
     @Expose
     public String accountNumber;
 
-    public TradeItGetAllTransactionsHistoryRequest(String accountNumber) {
+    public TradeItGetAllOrderStatusRequest(String accountNumber) {
         this.accountNumber = accountNumber;
     }
 
     @Override
     public String toString() {
-        return "TradeItGetAllTransactionsHistoryRequest{" +
+        return "TradeItGetAllOrderStatusRequest{" +
                 "accountNumber='" + accountNumber + '\'' +
                 "}, " + super.toString();
     }
