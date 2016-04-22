@@ -11,9 +11,7 @@
     tools:context="it.trade.tradeit.TradingActivity"
     tools:showIn="@layout/activity_trading">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
@@ -47,9 +45,7 @@
 
     </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
@@ -75,7 +71,7 @@
             android:layout_weight="1"
             android:textSize="14sp"
             android:hint="@string/password_edittext_hint"
-            android:password="true" />
+            android:inputType="textPassword" />
 
     </LinearLayout>
 
