@@ -1,5 +1,29 @@
 apply plugin: 'com.android.library'
 
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'tradeit-api'
+
+    publishedGroupId = 'it.trade.tradeit'
+    libraryName = 'tradeit-api'
+    artifact = 'tradeit-api'
+
+    libraryDescription = 'An Android wrapper for the Trade.it API: https://www.trade.it/api'
+
+    siteUrl = 'https://github.com/tradingticket/AndroidAPI'
+    gitUrl = 'https://github.com/tradingticket/AndroidAPI.git'
+
+    libraryVersion = '0.0.1'
+
+    developerId = 'tradingticket'
+    developerName = 'Trade It'
+    developerEmail = 'alex@trade.it'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
@@ -28,3 +52,6 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.1.2'
     compile 'com.squareup.okhttp3:logging-interceptor:3.1.2'
 }
+
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
