@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import it.trade.tradeitapi.API.TradeItAPIService;
+import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
@@ -60,7 +61,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tradeItAPIService = new TradeItAPIService(API_KEY);
+        tradeItAPIService = new TradeItAPIService(API_KEY, TradeItEnvironment.QA);
 
         outputTextView = (TextView) findViewById(R.id.output_textview);
         outputTextView.setMovementMethod(new ScrollingMovementMethod());

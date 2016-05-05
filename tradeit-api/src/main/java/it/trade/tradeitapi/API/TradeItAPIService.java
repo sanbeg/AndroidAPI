@@ -4,6 +4,7 @@ import it.trade.tradeitapi.model.TradeItAnswerSecurityQuestionRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
 import it.trade.tradeitapi.model.TradeItCancelOrderRequest;
+import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewResponse;
 import it.trade.tradeitapi.model.TradeItGetAllOrderStatusRequest;
@@ -31,9 +32,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 
 public class TradeItAPIService implements TradeItAPI {
-    public static TradeItAPI tradeItAPI;
+    private TradeItAPI tradeItAPI;
 
-    public TradeItAPIService(String apiKey) {
+    public TradeItAPIService(String apiKey, TradeItEnvironment environment) {
         TradeItRequestWithKey.API_KEY = apiKey;
 
         // TODO: TURN OFF LOGGING
@@ -42,7 +43,7 @@ public class TradeItAPIService implements TradeItAPI {
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://ems.qa.tradingticket.com/")
+                .baseUrl(environment.getBaseUrl())
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
