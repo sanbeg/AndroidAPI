@@ -1,5 +1,7 @@
 package it.trade.tradeitapi.API;
 
+import java.util.UUID;
+
 import it.trade.tradeitapi.model.TradeItAnswerSecurityQuestionRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
@@ -33,6 +35,7 @@ import retrofit2.http.Body;
 
 public class TradeItAPIService implements TradeItAPI {
     private TradeItAPI tradeItAPI;
+    private String serverUuid;
 
     public TradeItAPIService(String apiKey, TradeItEnvironment environment) {
         TradeItRequestWithKey.API_KEY = apiKey;
@@ -58,10 +61,17 @@ public class TradeItAPIService implements TradeItAPI {
     }
 
     public Call<TradeItAuthenticateResponse> authenticate(@Body TradeItAuthenticateRequest request) {
+        if (serverUuid == null) {
+            serverUuid = UUID.randomUUID().toString();
+        }
+
+        request.serverUuid = serverUuid;
+
         return tradeItAPI.authenticate(request);
     }
 
     public Call<TradeItAuthenticateResponse> answerSecurityQuestion(@Body TradeItAnswerSecurityQuestionRequest request) {
+        request.serverUuid = serverUuid;
         return tradeItAPI.answerSecurityQuestion(request);
     }
 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TradeItResponse {
+    // Refer to https://www.trade.it/documentation/api#ErrorHandling for error codes
     @SerializedName("code")
     @Expose
     public Integer code;

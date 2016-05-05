@@ -229,7 +229,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
                 // TODO: THIS SHOULD BE HANDLED INTERNAL TO THE SERVICE
                 if (oAuthLinkResponse.status.equals("SUCCESS")) {
-                    auth(oAuthLinkResponse.userToken, oAuthLinkResponse.userId);
+                    auth(oAuthLinkResponse);
                 }
             }
 
@@ -240,8 +240,8 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
-    private void auth(String userToken, String userId) {
-        TradeItAuthenticateRequest authRequest = new TradeItAuthenticateRequest(userToken, userId, Long.toString(System.currentTimeMillis()));
+    private void auth(TradeItOAuthLinkResponse oAuthLinkResponse) {
+        TradeItAuthenticateRequest authRequest = new TradeItAuthenticateRequest(oAuthLinkResponse);
         Call<TradeItAuthenticateResponse> call = tradeItAPIService.authenticate(authRequest);
         appendRequest(authRequest);
 

@@ -14,20 +14,21 @@ public class TradeItAuthenticateRequest extends TradeItRequestWithKey {
 
     @SerializedName("srv")
     @Expose
-    public String srv;
+    public String serverUuid;
 
-    public TradeItAuthenticateRequest(String userToken, String userId, String srv) {
-        this.userToken = userToken;
-        this.userId = userId;
-        this.srv = srv;
+    public TradeItAuthenticateRequest(TradeItOAuthLinkResponse oAuthLinkResponse) {
+        this.userToken = oAuthLinkResponse.userToken;
+        this.userId = oAuthLinkResponse.userId;
     }
+
+    private TradeItAuthenticateRequest() {}
 
     @Override
     public String toString() {
         return "TradeItAuthenticateRequest{" +
                 "userToken='" + userToken + '\'' +
                 ", userId='" + userId + '\'' +
-                ", srv='" + srv + '\'' +
+                ", srv='" + serverUuid + '\'' +
                 "}, " + super.toString();
     }
 }

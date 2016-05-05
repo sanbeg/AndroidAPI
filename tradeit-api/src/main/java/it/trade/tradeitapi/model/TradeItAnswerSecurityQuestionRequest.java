@@ -3,7 +3,7 @@ package it.trade.tradeitapi.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class TradeItAnswerSecurityQuestionRequest {
+public class TradeItAnswerSecurityQuestionRequest extends TradeItRequestWithSession {
     @SerializedName("token")
     @Expose
     public String token;
@@ -14,12 +14,10 @@ public class TradeItAnswerSecurityQuestionRequest {
 
     @SerializedName("srv")
     @Expose
-    public String srv;
+    public String serverUuid;
 
-    public TradeItAnswerSecurityQuestionRequest(String token, String securityAnswer, String srv) {
-        this.token = token;
+    public TradeItAnswerSecurityQuestionRequest(String securityAnswer) {
         this.securityAnswer = securityAnswer;
-        this.srv = srv;
     }
 
     @Override
@@ -27,7 +25,7 @@ public class TradeItAnswerSecurityQuestionRequest {
         return "TradeItAnswerSecurityQuestionRequest{" +
                 "token='" + token + '\'' +
                 ", securityAnswer='" + securityAnswer + '\'' +
-                ", srv='" + srv + '\'' +
+                ", srv='" + serverUuid + '\'' +
                 '}';
     }
 }
