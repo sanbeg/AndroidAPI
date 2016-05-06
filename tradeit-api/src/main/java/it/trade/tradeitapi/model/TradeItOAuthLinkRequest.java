@@ -3,7 +3,7 @@ package it.trade.tradeitapi.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class TradeItOAuthLinkRequest extends TradeItRequestWithKey {
+public class TradeItOAuthLinkRequest {
 
     @SerializedName("id")
     @Expose
@@ -17,10 +17,15 @@ public class TradeItOAuthLinkRequest extends TradeItRequestWithKey {
     @Expose
     public String broker;
 
-    public TradeItOAuthLinkRequest(String id, String password, String broker) {
+    @SerializedName("apiKey")
+    @Expose
+    public String apiKey;
+
+    public TradeItOAuthLinkRequest(String id, String password, String broker, String apiKey) {
         this.id = id;
         this.password = password;
         this.broker = broker;
+        this.apiKey = apiKey;
     }
 
     @Override
@@ -29,6 +34,7 @@ public class TradeItOAuthLinkRequest extends TradeItRequestWithKey {
                 "id='" + id + '\'' +
                 ", password='" + password + '\'' +
                 ", broker='" + broker + '\'' +
-                "}, " + super.toString();
+                ", apiKey='" + apiKey + '\'' +
+                "}";
     }
 }

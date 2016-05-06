@@ -5,8 +5,8 @@ import java.util.UUID;
 import it.trade.tradeitapi.model.TradeItAnswerSecurityQuestionRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
+import it.trade.tradeitapi.model.TradeItBrokerLink;
 import it.trade.tradeitapi.model.TradeItCancelOrderRequest;
-import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewResponse;
 import it.trade.tradeitapi.model.TradeItGetAllOrderStatusRequest;
@@ -15,9 +15,6 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
 import it.trade.tradeitapi.model.TradeItGetSingleOrderStatusRequest;
-import it.trade.tradeitapi.model.TradeItOAuthLinkRequest;
-import it.trade.tradeitapi.model.TradeItOAuthLinkResponse;
-import it.trade.tradeitapi.model.TradeItOAuthUpdateRequest;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderResponse;
@@ -26,28 +23,23 @@ import it.trade.tradeitapi.model.TradeItPreviewStockOrEtfOrderResponse;
 import it.trade.tradeitapi.model.TradeItRequestWithKey;
 import it.trade.tradeitapi.model.TradeItRequestWithSession;
 import it.trade.tradeitapi.model.TradeItResponse;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 
-public class TradeItAPIService implements TradeItAPI {
+public class TradeItAPIService {
     private TradeItAPI tradeItAPI;
     private String serverUuid;
+    private TradeItBrokerLink tradeItBrokerLink;
+    private String sessionToken;
 
-    public TradeItAPIService(String apiKey, TradeItEnvironment environment) {
-        TradeItRequestWithKey.API_KEY = apiKey;
-
-        // TODO: TURN OFF LOGGING
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+    public TradeItAPIService(TradeItBrokerLink tradeItBrokerLink) {
+        this.tradeItBrokerLink = tradeItBrokerLink;
+        TradeItRequestWithKey.API_KEY = tradeItBrokerLink.apiKey;
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(environment.getBaseUrl())
-                .client(client)
+                .baseUrl(tradeItBrokerLink.environment.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -56,62 +48,76 @@ public class TradeItAPIService implements TradeItAPI {
 
     private TradeItAPIService() {}
 
-    public Call<TradeItOAuthLinkResponse> oAuthLink(@Body TradeItOAuthLinkRequest request) {
-        return tradeItAPI.oAuthLink(request);
+    public void setSessionToken(String sessionToken) {
+        this.sessionToken = sessionToken;
     }
 
-    public Call<TradeItAuthenticateResponse> authenticate(@Body TradeItAuthenticateRequest request) {
+    private void injectSession(TradeItRequestWithSession request) {
+        request.sessionToken = sessionToken;
+    }
+
+    public Call<TradeItAuthenticateResponse> authenticate() {
         if (serverUuid == null) {
             serverUuid = UUID.randomUUID().toString();
         }
 
-        request.serverUuid = serverUuid;
+        TradeItAuthenticateRequest authenticateRequest = new TradeItAuthenticateRequest(tradeItBrokerLink);
+        authenticateRequest.serverUuid = serverUuid;
 
-        return tradeItAPI.authenticate(request);
+        // TODO: GET TOKEN HERE AND SAVE IT SOMEHOW!!!!!!!
+        // custom authenticate Call/Callback wrappers
+
+        return tradeItAPI.authenticate(authenticateRequest);
     }
 
-    public Call<TradeItAuthenticateResponse> answerSecurityQuestion(@Body TradeItAnswerSecurityQuestionRequest request) {
+    public Call<TradeItAuthenticateResponse> answerSecurityQuestion(TradeItAnswerSecurityQuestionRequest request) {
         request.serverUuid = serverUuid;
+        injectSession(request);
         return tradeItAPI.answerSecurityQuestion(request);
     }
 
-    public Call<TradeItOAuthLinkResponse> oAuthUpdate(@Body TradeItOAuthUpdateRequest request) {
-        return tradeItAPI.oAuthUpdate(request);
-    }
-
-    public Call<TradeItResponse> keepSessionAlive(@Body TradeItRequestWithSession request) {
+    public Call<TradeItResponse> keepSessionAlive(TradeItRequestWithSession request) {
+        injectSession(request);
         return tradeItAPI.keepSessionAlive(request);
     }
 
-    public Call<TradeItPreviewStockOrEtfOrderResponse> previewStockOrEtfOrder(@Body TradeItPreviewStockOrEtfOrderRequest request) {
+    public Call<TradeItPreviewStockOrEtfOrderResponse> previewStockOrEtfOrder(TradeItPreviewStockOrEtfOrderRequest request) {
+        injectSession(request);
         return tradeItAPI.previewStockOrEtfOrder(request);
     }
 
-    public Call<TradeItPlaceStockOrEtfOrderResponse> placeStockOrEtfOrder(@Body TradeItPlaceStockOrEtfOrderRequest request) {
+    public Call<TradeItPlaceStockOrEtfOrderResponse> placeStockOrEtfOrder(TradeItPlaceStockOrEtfOrderRequest request) {
+        injectSession(request);
         return tradeItAPI.placeStockOrEtfOrder(request);
     }
 
-    public Call<TradeItGetAccountOverviewResponse> getAccountOverview(@Body TradeItGetAccountOverviewRequest request) {
+    public Call<TradeItGetAccountOverviewResponse> getAccountOverview(TradeItGetAccountOverviewRequest request) {
+        injectSession(request);
         return tradeItAPI.getAccountOverview(request);
     }
 
-    public Call<TradeItGetPositionsResponse> getPositions(@Body TradeItGetPositionsRequest request) {
+    public Call<TradeItGetPositionsResponse> getPositions(TradeItGetPositionsRequest request) {
+        injectSession(request);
         return tradeItAPI.getPositions(request);
     }
 
     public Call<TradeItOrderStatusResponse> getAllOrderStatus(@Body TradeItGetAllOrderStatusRequest request) {
+        injectSession(request);
         return tradeItAPI.getAllOrderStatus(request);
     }
 
     public Call<TradeItOrderStatusResponse> getSingleOrderStatus(@Body TradeItGetSingleOrderStatusRequest request) {
+        injectSession(request);
         return tradeItAPI.getSingleOrderStatus(request);
     }
 
     public Call<TradeItOrderStatusResponse> cancelOrder(@Body TradeItCancelOrderRequest request) {
+        injectSession(request);
         return tradeItAPI.cancelOrder(request);
     }
 
     public Call<TradeItGetAllTransactionsHistoryResponse> getAllTransactionsHistory(@Body TradeItGetAllTransactionsHistoryRequest request) {
+        injectSession(request);
         return tradeItAPI.getAllTransactionsHistory(request);
     }
 }

@@ -13,17 +13,16 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import it.trade.tradeitapi.API.TradeItAPIService;
-import it.trade.tradeitapi.model.TradeItEnvironment;
-import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryRequest;
-import it.trade.tradeitapi.model.TradeItAuthenticateRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
+import it.trade.tradeitapi.model.TradeItBrokerLink;
+import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewResponse;
 import it.trade.tradeitapi.model.TradeItGetAllOrderStatusRequest;
+import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryRequest;
 import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
-import it.trade.tradeitapi.model.TradeItOAuthLinkRequest;
 import it.trade.tradeitapi.model.TradeItOAuthLinkResponse;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
@@ -50,7 +49,6 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     TradeItAPIService tradeItAPIService;
     String selectedBroker;
     String selectedAction;
-    String sessionToken;
     String accountNumber;
 
     @Override
@@ -60,8 +58,6 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        tradeItAPIService = new TradeItAPIService(API_KEY, TradeItEnvironment.QA);
 
         outputTextView = (TextView) findViewById(R.id.output_textview);
         outputTextView.setMovementMethod(new ScrollingMovementMethod());
@@ -156,6 +152,44 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         transactions(accountNumber);
     }
 
+    private void link(String broker, String username, String password) {
+        TradeItBrokerLink brokerLink = new TradeItBrokerLink(broker, username, password, API_KEY, TradeItEnvironment.QA);
+        appendRequest(brokerLink);
+        brokerLink.link(new TradeItBrokerLink.TradeItBrokerLinkCallback() {
+
+            @Override
+            public void onLinkSuccess(TradeItBrokerLink successfulBrokerLink) {
+                appendResponse(successfulBrokerLink);
+                tradeItAPIService = new TradeItAPIService(successfulBrokerLink);
+                auth();
+            }
+
+            @Override
+            public void onLinkFailed(TradeItOAuthLinkResponse response) {
+                appendResponse(response);
+            }
+        });
+    }
+
+    private void auth() {
+        Call<TradeItAuthenticateResponse> call = tradeItAPIService.authenticate();
+        appendRequest("AUTHENTICATING!!!!!!!!!!!!!!!!!!!");
+
+        call.enqueue(new CallbackWithError<TradeItAuthenticateResponse>() {
+            @Override
+            public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
+                TradeItAuthenticateResponse authResponse = response.body();
+                appendResponse(authResponse);
+
+                // TODO: THIS SHOULD BE HANDLED INTERNAL TO THE SERVICE
+                tradeItAPIService.setSessionToken(authResponse.sessionToken);
+                accountNumber = authResponse.accounts.get(0).accountNumber;
+
+                ping();
+            }
+        });
+    }
+
     private void orders(String accountNumber) {
         TradeItGetAllOrderStatusRequest ordersRequest = new TradeItGetAllOrderStatusRequest(accountNumber);
 
@@ -212,50 +246,6 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
             public void onResponse(Call<TradeItGetAccountOverviewResponse> call, Response<TradeItGetAccountOverviewResponse> response) {
                 TradeItGetAccountOverviewResponse balanceResponse = response.body();
                 appendResponse(balanceResponse);
-            }
-        });
-    }
-
-    private void link(String broker, String username, String password) {
-        TradeItOAuthLinkRequest oAuthLinkRequest = new TradeItOAuthLinkRequest(username, password, broker);
-        Call<TradeItOAuthLinkResponse> call = tradeItAPIService.oAuthLink(oAuthLinkRequest);
-        appendRequest(oAuthLinkRequest);
-
-        call.enqueue(new CallbackWithError<TradeItOAuthLinkResponse>() {
-            @Override
-            public void onResponse(Call<TradeItOAuthLinkResponse> call, Response<TradeItOAuthLinkResponse> response) {
-                TradeItOAuthLinkResponse oAuthLinkResponse = response.body();
-                appendResponse(oAuthLinkResponse);
-
-                // TODO: THIS SHOULD BE HANDLED INTERNAL TO THE SERVICE
-                if (oAuthLinkResponse.status.equals("SUCCESS")) {
-                    auth(oAuthLinkResponse);
-                }
-            }
-
-//            @Override
-//            public void onFailure(Call<TradeItOAuthLinkResponse> call, Throwable t) {
-//                appendError(t);
-//            }
-        });
-    }
-
-    private void auth(TradeItOAuthLinkResponse oAuthLinkResponse) {
-        TradeItAuthenticateRequest authRequest = new TradeItAuthenticateRequest(oAuthLinkResponse);
-        Call<TradeItAuthenticateResponse> call = tradeItAPIService.authenticate(authRequest);
-        appendRequest(authRequest);
-
-        call.enqueue(new CallbackWithError<TradeItAuthenticateResponse>() {
-            @Override
-            public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
-                TradeItAuthenticateResponse authResponse = response.body();
-                appendResponse(authResponse);
-
-                // TODO: THIS SHOULD BE HANDLED INTERNAL TO THE SERVICE
-                TradeItRequestWithSession.SESSION_TOKEN = authResponse.token;
-                accountNumber = authResponse.accounts.get(0).accountNumber;
-
-                ping();
             }
         });
     }

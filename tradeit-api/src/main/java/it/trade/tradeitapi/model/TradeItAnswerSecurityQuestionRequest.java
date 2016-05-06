@@ -4,10 +4,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class TradeItAnswerSecurityQuestionRequest extends TradeItRequestWithSession {
-    @SerializedName("token")
-    @Expose
-    public String token;
-
     @SerializedName("securityAnswer")
     @Expose
     public String securityAnswer;
@@ -23,9 +19,8 @@ public class TradeItAnswerSecurityQuestionRequest extends TradeItRequestWithSess
     @Override
     public String toString() {
         return "TradeItAnswerSecurityQuestionRequest{" +
-                "token='" + token + '\'' +
                 ", securityAnswer='" + securityAnswer + '\'' +
                 ", srv='" + serverUuid + '\'' +
-                '}';
+                "}, " + super.toString();
     }
 }

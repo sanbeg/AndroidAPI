@@ -26,7 +26,7 @@ public class TradeItResponse {
 
     @SerializedName("token")
     @Expose
-    public String token;
+    public String sessionToken;
 
     @Override
     public String toString() {
@@ -35,7 +35,7 @@ public class TradeItResponse {
                 ", longMessages=" + longMessages +
                 ", shortMessage='" + shortMessage + '\'' +
                 ", status='" + status + '\'' +
-                ", token='" + token + '\'' +
+                ", token='" + sessionToken + '\'' +
                 '}';
     }
 }
