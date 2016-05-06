@@ -10,10 +10,10 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 
-public class TradeItBrokerLinkAPIService {
-    private TradeItBrokerLinkAPI tradeItBrokerLinkAPI;
+public class TradeItBrokerLinkApiClient {
+    private TradeItBrokerLinkApi tradeItBrokerLinkApi;
 
-    public TradeItBrokerLinkAPIService(String apiKey, TradeItEnvironment environment) {
+    public TradeItBrokerLinkApiClient(String apiKey, TradeItEnvironment environment) {
         TradeItRequestWithKey.API_KEY = apiKey;
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -21,16 +21,16 @@ public class TradeItBrokerLinkAPIService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        tradeItBrokerLinkAPI = retrofit.create(TradeItBrokerLinkAPI.class);
+        tradeItBrokerLinkApi = retrofit.create(TradeItBrokerLinkApi.class);
     }
 
-    private TradeItBrokerLinkAPIService() {}
+    private TradeItBrokerLinkApiClient() {}
 
     public Call<TradeItOAuthLinkResponse> oAuthLink(@Body TradeItOAuthLinkRequest request) {
-        return tradeItBrokerLinkAPI.oAuthLink(request);
+        return tradeItBrokerLinkApi.oAuthLink(request);
     }
 
     public Call<TradeItOAuthLinkResponse> oAuthUpdate(@Body TradeItOAuthUpdateRequest request) {
-        return tradeItBrokerLinkAPI.oAuthUpdate(request);
+        return tradeItBrokerLinkApi.oAuthUpdate(request);
     }
 }

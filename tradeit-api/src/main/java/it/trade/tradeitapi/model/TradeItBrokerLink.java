@@ -1,6 +1,6 @@
 package it.trade.tradeitapi.model;
 
-import it.trade.tradeitapi.API.TradeItBrokerLinkAPIService;
+import it.trade.tradeitapi.API.TradeItBrokerLinkApiClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -21,13 +21,13 @@ String token = sharedPreferences.getString("TOKEN KEY", "");
 */
 
 public class TradeItBrokerLink {
+    public String broker;
     public String userToken = "";
     public String userId = "";
     public TradeItEnvironment environment = TradeItEnvironment.QA;
     public String apiKey = "";
 
-    private TradeItBrokerLinkAPIService brokerLinkAPIService;
-    private String broker;
+    private TradeItBrokerLinkApiClient brokerLinkAPIClient;
     private String username;
     private String password;
 
@@ -37,7 +37,7 @@ public class TradeItBrokerLink {
         this.password = password;
         this.apiKey = apiKey;
         this.environment = environment;
-        this.brokerLinkAPIService = new TradeItBrokerLinkAPIService(apiKey, environment);
+        this.brokerLinkAPIClient = new TradeItBrokerLinkApiClient(apiKey, environment);
     }
 
     private TradeItBrokerLink() {}
@@ -57,7 +57,7 @@ public class TradeItBrokerLink {
 
     public void link(final TradeItBrokerLinkCallback callback) {
         TradeItOAuthLinkRequest oAuthLinkRequest = new TradeItOAuthLinkRequest(username, password, broker, apiKey);
-        Call<TradeItOAuthLinkResponse> call = brokerLinkAPIService.oAuthLink(oAuthLinkRequest);
+        Call<TradeItOAuthLinkResponse> call = brokerLinkAPIClient.oAuthLink(oAuthLinkRequest);
 
         final TradeItBrokerLink self = this;
 

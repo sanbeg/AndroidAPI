@@ -28,13 +28,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 
-public class TradeItAPIService {
-    private TradeItAPI tradeItAPI;
+public class TradeItApiClient {
+    private TradeItApi tradeItApi;
     private String serverUuid;
     private TradeItBrokerLink tradeItBrokerLink;
     private String sessionToken;
 
-    public TradeItAPIService(TradeItBrokerLink tradeItBrokerLink) {
+    public TradeItApiClient(TradeItBrokerLink tradeItBrokerLink) {
         this.tradeItBrokerLink = tradeItBrokerLink;
         TradeItRequestWithKey.API_KEY = tradeItBrokerLink.apiKey;
 
@@ -43,10 +43,10 @@ public class TradeItAPIService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        tradeItAPI = retrofit.create(TradeItAPI.class);
+        tradeItApi = retrofit.create(TradeItApi.class);
     }
 
-    private TradeItAPIService() {}
+    private TradeItApiClient() {}
 
     public void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
@@ -67,57 +67,57 @@ public class TradeItAPIService {
         // TODO: GET TOKEN HERE AND SAVE IT SOMEHOW!!!!!!!
         // custom authenticate Call/Callback wrappers
 
-        return tradeItAPI.authenticate(authenticateRequest);
+        return tradeItApi.authenticate(authenticateRequest);
     }
 
     public Call<TradeItAuthenticateResponse> answerSecurityQuestion(TradeItAnswerSecurityQuestionRequest request) {
         request.serverUuid = serverUuid;
         injectSession(request);
-        return tradeItAPI.answerSecurityQuestion(request);
+        return tradeItApi.answerSecurityQuestion(request);
     }
 
     public Call<TradeItResponse> keepSessionAlive(TradeItRequestWithSession request) {
         injectSession(request);
-        return tradeItAPI.keepSessionAlive(request);
+        return tradeItApi.keepSessionAlive(request);
     }
 
     public Call<TradeItPreviewStockOrEtfOrderResponse> previewStockOrEtfOrder(TradeItPreviewStockOrEtfOrderRequest request) {
         injectSession(request);
-        return tradeItAPI.previewStockOrEtfOrder(request);
+        return tradeItApi.previewStockOrEtfOrder(request);
     }
 
     public Call<TradeItPlaceStockOrEtfOrderResponse> placeStockOrEtfOrder(TradeItPlaceStockOrEtfOrderRequest request) {
         injectSession(request);
-        return tradeItAPI.placeStockOrEtfOrder(request);
+        return tradeItApi.placeStockOrEtfOrder(request);
     }
 
     public Call<TradeItGetAccountOverviewResponse> getAccountOverview(TradeItGetAccountOverviewRequest request) {
         injectSession(request);
-        return tradeItAPI.getAccountOverview(request);
+        return tradeItApi.getAccountOverview(request);
     }
 
     public Call<TradeItGetPositionsResponse> getPositions(TradeItGetPositionsRequest request) {
         injectSession(request);
-        return tradeItAPI.getPositions(request);
+        return tradeItApi.getPositions(request);
     }
 
     public Call<TradeItOrderStatusResponse> getAllOrderStatus(@Body TradeItGetAllOrderStatusRequest request) {
         injectSession(request);
-        return tradeItAPI.getAllOrderStatus(request);
+        return tradeItApi.getAllOrderStatus(request);
     }
 
     public Call<TradeItOrderStatusResponse> getSingleOrderStatus(@Body TradeItGetSingleOrderStatusRequest request) {
         injectSession(request);
-        return tradeItAPI.getSingleOrderStatus(request);
+        return tradeItApi.getSingleOrderStatus(request);
     }
 
     public Call<TradeItOrderStatusResponse> cancelOrder(@Body TradeItCancelOrderRequest request) {
         injectSession(request);
-        return tradeItAPI.cancelOrder(request);
+        return tradeItApi.cancelOrder(request);
     }
 
     public Call<TradeItGetAllTransactionsHistoryResponse> getAllTransactionsHistory(@Body TradeItGetAllTransactionsHistoryRequest request) {
         injectSession(request);
-        return tradeItAPI.getAllTransactionsHistory(request);
+        return tradeItApi.getAllTransactionsHistory(request);
     }
 }
