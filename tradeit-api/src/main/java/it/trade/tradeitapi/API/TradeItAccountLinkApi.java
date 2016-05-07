@@ -7,7 +7,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
-public interface TradeItBrokerLinkApi {
+public interface TradeItAccountLinkApi {
     @POST("/api/v1/user/oAuthLink")
     Call<TradeItOAuthLinkResponse> oAuthLink(@Body TradeItOAuthLinkRequest request);
 

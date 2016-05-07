@@ -2,10 +2,10 @@ package it.trade.tradeitapi.API;
 
 import java.util.UUID;
 
+import it.trade.tradeitapi.model.TradeItLinkedAccount;
 import it.trade.tradeitapi.model.TradeItAnswerSecurityQuestionRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
-import it.trade.tradeitapi.model.TradeItBrokerLink;
 import it.trade.tradeitapi.model.TradeItCancelOrderRequest;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewResponse;
@@ -33,15 +33,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class TradeItApiClient {
     private TradeItApi tradeItApi;
     private String serverUuid;
-    private TradeItBrokerLink tradeItBrokerLink;
+    private TradeItLinkedAccount tradeItLinkedAccount;
     private String sessionToken;
 
-    public TradeItApiClient(TradeItBrokerLink tradeItBrokerLink) {
-        this.tradeItBrokerLink = tradeItBrokerLink;
-        TradeItRequestWithKey.API_KEY = tradeItBrokerLink.apiKey;
+    public TradeItApiClient(TradeItLinkedAccount tradeItLinkedAccount) {
+        this.tradeItLinkedAccount = tradeItLinkedAccount;
+        TradeItRequestWithKey.API_KEY = tradeItLinkedAccount.apiKey;
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(tradeItBrokerLink.environment.getBaseUrl())
+                .baseUrl(tradeItLinkedAccount.environment.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -59,11 +59,10 @@ public class TradeItApiClient {
             serverUuid = UUID.randomUUID().toString();
         }
 
-        TradeItAuthenticateRequest authenticateRequest = new TradeItAuthenticateRequest(tradeItBrokerLink);
+        TradeItAuthenticateRequest authenticateRequest = new TradeItAuthenticateRequest(tradeItLinkedAccount);
         authenticateRequest.serverUuid = serverUuid;
 
         tradeItApi.authenticate(authenticateRequest).enqueue(new Callback<TradeItAuthenticateResponse>() {
-            @Override
             public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
                 if (response.isSuccessful()) {
                     TradeItAuthenticateResponse authenticateResponse = response.body();
@@ -75,9 +74,8 @@ public class TradeItApiClient {
                 callback.onResponse(call, response);
             }
 
-            @Override
             public void onFailure(Call<TradeItAuthenticateResponse> call, Throwable t) {
-
+                callback.onFailure(call, t);
             }
         });
     }

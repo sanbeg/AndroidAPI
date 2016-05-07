@@ -16,9 +16,9 @@ public class TradeItAuthenticateRequest extends TradeItRequestWithKey {
     @Expose
     public String serverUuid;
 
-    public TradeItAuthenticateRequest(TradeItBrokerLink brokerLink) {
-        this.userToken = brokerLink.userToken;
-        this.userId = brokerLink.userId;
+    public TradeItAuthenticateRequest(TradeItLinkedAccount linkedAccount) {
+        this.userToken = linkedAccount.userToken;
+        this.userId = linkedAccount.userId;
     }
 
     private TradeItAuthenticateRequest() {}

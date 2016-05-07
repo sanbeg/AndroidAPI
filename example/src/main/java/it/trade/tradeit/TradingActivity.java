@@ -13,8 +13,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import it.trade.tradeitapi.API.TradeItApiClient;
+import it.trade.tradeitapi.API.TradeItAccountLinker;
+import it.trade.tradeitapi.model.TradeItLinkedAccount;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
-import it.trade.tradeitapi.model.TradeItBrokerLink;
 import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewResponse;
@@ -23,6 +24,7 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryRequest;
 import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
+import it.trade.tradeitapi.model.TradeItOAuthLinkRequest;
 import it.trade.tradeitapi.model.TradeItOAuthLinkResponse;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
@@ -31,6 +33,7 @@ import it.trade.tradeitapi.model.TradeItPreviewStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPreviewStockOrEtfOrderResponse;
 import it.trade.tradeitapi.model.TradeItRequestWithSession;
 import it.trade.tradeitapi.model.TradeItResponse;
+import it.trade.tradeitapi.model.TradeItResponseStatus;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -50,6 +53,8 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     String selectedBroker;
     String selectedAction;
     String accountNumber;
+
+    TradeItLinkedAccount linkedAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,20 +158,27 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void link(String broker, String username, String password) {
-        TradeItBrokerLink brokerLink = new TradeItBrokerLink(broker, username, password, API_KEY, TradeItEnvironment.QA);
-        appendRequest(brokerLink);
-        brokerLink.link(new TradeItBrokerLink.TradeItBrokerLinkCallback() {
+        TradeItAccountLinker accountLinker = new TradeItAccountLinker(API_KEY, TradeItEnvironment.QA);
 
-            @Override
-            public void onLinkSuccess(TradeItBrokerLink successfulBrokerLink) {
-                appendResponse(successfulBrokerLink);
-                tradeItApiClient = new TradeItApiClient(successfulBrokerLink);
-                auth();
-            }
+        final TradeItOAuthLinkRequest oAuthLinkRequest = new TradeItOAuthLinkRequest(username, password, broker);
+        appendRequest(oAuthLinkRequest);
 
-            @Override
-            public void onLinkFailed(TradeItOAuthLinkResponse response) {
-                appendResponse(response);
+        accountLinker.linkBrokerAccount(oAuthLinkRequest, new CallbackWithError<TradeItOAuthLinkResponse>() {
+            public void onResponse(Call<TradeItOAuthLinkResponse> call, Response<TradeItOAuthLinkResponse> response) {
+                if (response.isSuccessful()) {
+                    TradeItOAuthLinkResponse oAuthLinkResponse = response.body();
+                    appendResponse(oAuthLinkResponse);
+
+                    if (oAuthLinkResponse.status == TradeItResponseStatus.SUCCESS) {
+                        linkedAccount = new TradeItLinkedAccount(oAuthLinkRequest, oAuthLinkResponse);
+//                        linkedAccount.save("My Special Linked Account");
+
+                        tradeItApiClient = new TradeItApiClient(linkedAccount);
+                        auth();
+                    }
+                } else {
+                    appendResponse(response.raw());
+                }
             }
         });
     }
@@ -177,9 +189,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
             public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
                 TradeItAuthenticateResponse authResponse = response.body();
                 appendResponse(authResponse);
-
                 accountNumber = authResponse.accounts.get(0).accountNumber;
-
                 ping();
             }
         });

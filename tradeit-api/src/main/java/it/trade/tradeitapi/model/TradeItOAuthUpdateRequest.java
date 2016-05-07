@@ -34,7 +34,6 @@ public class TradeItOAuthUpdateRequest extends TradeItRequestWithKey {
                 ", password='" + password + '\'' +
                 ", broker='" + broker + '\'' +
                 ", userId='" + userId + '\'' +
-                ", apiKey='" + apiKey + '\'' +
-                "}";
+                "}, " + super.toString();
     }
 }
