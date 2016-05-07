@@ -23,6 +23,7 @@ import it.trade.tradeitapi.model.TradeItPreviewStockOrEtfOrderResponse;
 import it.trade.tradeitapi.model.TradeItRequestWithKey;
 import it.trade.tradeitapi.model.TradeItRequestWithSession;
 import it.trade.tradeitapi.model.TradeItResponse;
+import it.trade.tradeitapi.model.TradeItResponseStatus;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -66,7 +67,7 @@ public class TradeItApiClient {
             public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
                 if (response.isSuccessful()) {
                     TradeItAuthenticateResponse authenticateResponse = response.body();
-                    if (authenticateResponse.status.equals("SUCCESS")) {
+                    if (authenticateResponse.status == TradeItResponseStatus.SUCCESS) {
                         sessionToken = authenticateResponse.sessionToken;
                     }
                 }

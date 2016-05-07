@@ -10,7 +10,7 @@ public class TradeItResponse {
     // Refer to https://www.trade.it/documentation/api#ErrorHandling for error codes
     @SerializedName("code")
     @Expose
-    public Integer code;
+    public TradeItErrorCode code;
 
     @SerializedName("longMessages")
     @Expose
@@ -22,7 +22,7 @@ public class TradeItResponse {
 
     @SerializedName("status")
     @Expose
-    public String status;
+    public TradeItResponseStatus status;
 
     @SerializedName("token")
     @Expose

@@ -67,7 +67,7 @@ public class TradeItBrokerLink {
                 if (response.isSuccessful()) {
                     TradeItOAuthLinkResponse oAuthLinkResponse = response.body();
 
-                    if (oAuthLinkResponse.status.equals("SUCCESS")) {
+                    if (oAuthLinkResponse.status == TradeItResponseStatus.SUCCESS) {
                         userId = oAuthLinkResponse.userId;
                         userToken = oAuthLinkResponse.userToken;
                         callback.onLinkSuccess(self);
@@ -76,8 +76,8 @@ public class TradeItBrokerLink {
                     }
                 } else {
                     TradeItOAuthLinkResponse oAuthLinkResponse = new TradeItOAuthLinkResponse();
-                    oAuthLinkResponse.status = "ERROR";
-                    oAuthLinkResponse.code = 100;
+                    oAuthLinkResponse.status = TradeItResponseStatus.ERROR;
+                    oAuthLinkResponse.code = TradeItErrorCode.SYSTEM_ERROR;
                     oAuthLinkResponse.longMessages.add(response.message());
 
                     callback.onLinkFailed(oAuthLinkResponse);
@@ -87,8 +87,8 @@ public class TradeItBrokerLink {
             @Override
             public void onFailure(Call<TradeItOAuthLinkResponse> call, Throwable t) {
                 TradeItOAuthLinkResponse oAuthLinkResponse = new TradeItOAuthLinkResponse();
-                oAuthLinkResponse.status = "ERROR";
-                oAuthLinkResponse.code = 100;
+                oAuthLinkResponse.status = TradeItResponseStatus.ERROR;
+                oAuthLinkResponse.code = TradeItErrorCode.SYSTEM_ERROR;
                 oAuthLinkResponse.longMessages.add(t.getMessage());
 
                 callback.onLinkFailed(oAuthLinkResponse);
