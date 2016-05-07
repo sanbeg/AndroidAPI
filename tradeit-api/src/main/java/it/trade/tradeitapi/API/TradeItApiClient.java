@@ -24,9 +24,10 @@ import it.trade.tradeitapi.model.TradeItRequestWithKey;
 import it.trade.tradeitapi.model.TradeItRequestWithSession;
 import it.trade.tradeitapi.model.TradeItResponse;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Body;
 
 public class TradeItApiClient {
     private TradeItApi tradeItApi;
@@ -48,15 +49,11 @@ public class TradeItApiClient {
 
     private TradeItApiClient() {}
 
-    public void setSessionToken(String sessionToken) {
-        this.sessionToken = sessionToken;
-    }
-
     private void injectSession(TradeItRequestWithSession request) {
         request.sessionToken = sessionToken;
     }
 
-    public Call<TradeItAuthenticateResponse> authenticate() {
+    public void authenticate(final Callback<TradeItAuthenticateResponse> callback) {
         if (serverUuid == null) {
             serverUuid = UUID.randomUUID().toString();
         }
@@ -64,60 +61,91 @@ public class TradeItApiClient {
         TradeItAuthenticateRequest authenticateRequest = new TradeItAuthenticateRequest(tradeItBrokerLink);
         authenticateRequest.serverUuid = serverUuid;
 
-        // TODO: GET TOKEN HERE AND SAVE IT SOMEHOW!!!!!!!
-        // custom authenticate Call/Callback wrappers
+        tradeItApi.authenticate(authenticateRequest).enqueue(new Callback<TradeItAuthenticateResponse>() {
+            @Override
+            public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
+                if (response.isSuccessful()) {
+                    TradeItAuthenticateResponse authenticateResponse = response.body();
+                    if (authenticateResponse.status.equals("SUCCESS")) {
+                        sessionToken = authenticateResponse.sessionToken;
+                    }
+                }
 
-        return tradeItApi.authenticate(authenticateRequest);
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<TradeItAuthenticateResponse> call, Throwable t) {
+
+            }
+        });
     }
 
-    public Call<TradeItAuthenticateResponse> answerSecurityQuestion(TradeItAnswerSecurityQuestionRequest request) {
+    public void answerSecurityQuestion(TradeItAnswerSecurityQuestionRequest request, Callback<TradeItAuthenticateResponse> callback) {
         request.serverUuid = serverUuid;
         injectSession(request);
-        return tradeItApi.answerSecurityQuestion(request);
+        tradeItApi.answerSecurityQuestion(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-    public Call<TradeItResponse> keepSessionAlive(TradeItRequestWithSession request) {
+    public void keepSessionAlive(TradeItRequestWithSession request, Callback<TradeItResponse> callback) {
         injectSession(request);
-        return tradeItApi.keepSessionAlive(request);
+        tradeItApi.keepSessionAlive(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-    public Call<TradeItPreviewStockOrEtfOrderResponse> previewStockOrEtfOrder(TradeItPreviewStockOrEtfOrderRequest request) {
+    public void previewStockOrEtfOrder(TradeItPreviewStockOrEtfOrderRequest request, Callback<TradeItPreviewStockOrEtfOrderResponse> callback) {
         injectSession(request);
-        return tradeItApi.previewStockOrEtfOrder(request);
+        tradeItApi.previewStockOrEtfOrder(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-    public Call<TradeItPlaceStockOrEtfOrderResponse> placeStockOrEtfOrder(TradeItPlaceStockOrEtfOrderRequest request) {
+    public void placeStockOrEtfOrder(TradeItPlaceStockOrEtfOrderRequest request, Callback<TradeItPlaceStockOrEtfOrderResponse> callback) {
         injectSession(request);
-        return tradeItApi.placeStockOrEtfOrder(request);
+        tradeItApi.placeStockOrEtfOrder(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-    public Call<TradeItGetAccountOverviewResponse> getAccountOverview(TradeItGetAccountOverviewRequest request) {
+    public void getAccountOverview(TradeItGetAccountOverviewRequest request, Callback<TradeItGetAccountOverviewResponse> callback) {
         injectSession(request);
-        return tradeItApi.getAccountOverview(request);
+        tradeItApi.getAccountOverview(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-    public Call<TradeItGetPositionsResponse> getPositions(TradeItGetPositionsRequest request) {
+    public void getPositions(TradeItGetPositionsRequest request, Callback<TradeItGetPositionsResponse> callback) {
         injectSession(request);
-        return tradeItApi.getPositions(request);
+        tradeItApi.getPositions(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-    public Call<TradeItOrderStatusResponse> getAllOrderStatus(@Body TradeItGetAllOrderStatusRequest request) {
+    public void getAllOrderStatus(TradeItGetAllOrderStatusRequest request, Callback<TradeItOrderStatusResponse> callback) {
         injectSession(request);
-        return tradeItApi.getAllOrderStatus(request);
+        tradeItApi.getAllOrderStatus(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-    public Call<TradeItOrderStatusResponse> getSingleOrderStatus(@Body TradeItGetSingleOrderStatusRequest request) {
+    public void getSingleOrderStatus(TradeItGetSingleOrderStatusRequest request, Callback<TradeItOrderStatusResponse> callback) {
         injectSession(request);
-        return tradeItApi.getSingleOrderStatus(request);
+        tradeItApi.getSingleOrderStatus(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-    public Call<TradeItOrderStatusResponse> cancelOrder(@Body TradeItCancelOrderRequest request) {
+    public void cancelOrder(TradeItCancelOrderRequest request, Callback<TradeItOrderStatusResponse> callback) {
         injectSession(request);
-        return tradeItApi.cancelOrder(request);
+        tradeItApi.cancelOrder(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-    public Call<TradeItGetAllTransactionsHistoryResponse> getAllTransactionsHistory(@Body TradeItGetAllTransactionsHistoryRequest request) {
+    public void getAllTransactionsHistory(TradeItGetAllTransactionsHistoryRequest request, final Callback<TradeItGetAllTransactionsHistoryResponse> callback) {
         injectSession(request);
-        return tradeItApi.getAllTransactionsHistory(request);
+
+        tradeItApi.getAllTransactionsHistory(request).enqueue(new PassthroughCallback<>(callback));
+    }
+
+    private class PassthroughCallback<T> implements Callback<T> {
+        Callback<T> callback;
+
+        PassthroughCallback(Callback<T> callback) {
+            this.callback = callback;
+        }
+
+        public void onResponse(Call<T> call, Response<T> response) {
+            callback.onResponse(call, response);
+        }
+
+        public void onFailure(Call<T> call, Throwable t) {
+            callback.onFailure(call, t);
+        }
     }
 }

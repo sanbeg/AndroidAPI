@@ -172,17 +172,12 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void auth() {
-        Call<TradeItAuthenticateResponse> call = tradeItApiClient.authenticate();
         appendRequest("AUTHENTICATING...");
-
-        call.enqueue(new CallbackWithError<TradeItAuthenticateResponse>() {
-            @Override
+        tradeItApiClient.authenticate(new CallbackWithError<TradeItAuthenticateResponse>() {
             public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
                 TradeItAuthenticateResponse authResponse = response.body();
                 appendResponse(authResponse);
 
-                // TODO: THIS SHOULD BE HANDLED INTERNAL TO THE SERVICE
-                tradeItApiClient.setSessionToken(authResponse.sessionToken);
                 accountNumber = authResponse.accounts.get(0).accountNumber;
 
                 ping();
@@ -192,12 +187,9 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void orders(String accountNumber) {
         TradeItGetAllOrderStatusRequest ordersRequest = new TradeItGetAllOrderStatusRequest(accountNumber);
-
-        Call<TradeItOrderStatusResponse> call = tradeItApiClient.getAllOrderStatus(ordersRequest);
         appendRequest(ordersRequest);
 
-        call.enqueue(new CallbackWithError<TradeItOrderStatusResponse>() {
-            @Override
+        tradeItApiClient.getAllOrderStatus(ordersRequest, new CallbackWithError<TradeItOrderStatusResponse>() {
             public void onResponse(Call<TradeItOrderStatusResponse> call, Response<TradeItOrderStatusResponse> response) {
                 TradeItOrderStatusResponse ordersResponse = response.body();
                 appendResponse(ordersResponse);
@@ -207,12 +199,9 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void transactions(String accountNumber) {
         TradeItGetAllTransactionsHistoryRequest transactionsRequest = new TradeItGetAllTransactionsHistoryRequest(accountNumber);
-
-        Call<TradeItGetAllTransactionsHistoryResponse> call = tradeItApiClient.getAllTransactionsHistory(transactionsRequest);
         appendRequest(transactionsRequest);
 
-        call.enqueue(new CallbackWithError<TradeItGetAllTransactionsHistoryResponse>() {
-            @Override
+        tradeItApiClient.getAllTransactionsHistory(transactionsRequest, new CallbackWithError<TradeItGetAllTransactionsHistoryResponse>() {
             public void onResponse(Call<TradeItGetAllTransactionsHistoryResponse> call, Response<TradeItGetAllTransactionsHistoryResponse> response) {
                 TradeItGetAllTransactionsHistoryResponse transactionsResponse = response.body();
                 appendResponse(transactionsResponse);
@@ -222,12 +211,9 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void positions(String accountNumber) {
         TradeItGetPositionsRequest positionsRequest = new TradeItGetPositionsRequest(accountNumber, null);
-
-        Call<TradeItGetPositionsResponse> call = tradeItApiClient.getPositions(positionsRequest);
         appendRequest(positionsRequest);
 
-        call.enqueue(new CallbackWithError<TradeItGetPositionsResponse>() {
-            @Override
+        tradeItApiClient.getPositions(positionsRequest, new CallbackWithError<TradeItGetPositionsResponse>() {
             public void onResponse(Call<TradeItGetPositionsResponse> call, Response<TradeItGetPositionsResponse> response) {
                 TradeItGetPositionsResponse positionsResponse = response.body();
                 appendResponse(positionsResponse);
@@ -237,12 +223,9 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void balances(String accountNumber) {
         TradeItGetAccountOverviewRequest balanceRequest = new TradeItGetAccountOverviewRequest(accountNumber);
-
-        Call<TradeItGetAccountOverviewResponse> call = tradeItApiClient.getAccountOverview(balanceRequest);
         appendRequest(balanceRequest);
 
-        call.enqueue(new CallbackWithError<TradeItGetAccountOverviewResponse>() {
-            @Override
+        tradeItApiClient.getAccountOverview(balanceRequest, new CallbackWithError<TradeItGetAccountOverviewResponse>() {
             public void onResponse(Call<TradeItGetAccountOverviewResponse> call, Response<TradeItGetAccountOverviewResponse> response) {
                 TradeItGetAccountOverviewResponse balanceResponse = response.body();
                 appendResponse(balanceResponse);
@@ -252,11 +235,9 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void ping() {
         TradeItRequestWithSession pingRequest = new TradeItRequestWithSession();
-        Call<TradeItResponse> call = tradeItApiClient.keepSessionAlive(pingRequest);
         appendRequest(pingRequest);
 
-        call.enqueue(new CallbackWithError<TradeItResponse>() {
-            @Override
+        tradeItApiClient.keepSessionAlive(pingRequest, new CallbackWithError<TradeItResponse>() {
             public void onResponse(Call<TradeItResponse> call, Response<TradeItResponse> response) {
                 TradeItResponse pingResponse = response.body();
                 appendResponse(pingResponse);
@@ -274,11 +255,9 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
                                                                                                        "600",
                                                                                                        "day");
 
-        Call<TradeItPreviewStockOrEtfOrderResponse> call = tradeItApiClient.previewStockOrEtfOrder(previewRequest);
         appendRequest(previewRequest);
 
-        call.enqueue(new CallbackWithError<TradeItPreviewStockOrEtfOrderResponse>() {
-            @Override
+        tradeItApiClient.previewStockOrEtfOrder(previewRequest, new CallbackWithError<TradeItPreviewStockOrEtfOrderResponse>() {
             public void onResponse(Call<TradeItPreviewStockOrEtfOrderResponse> call, Response<TradeItPreviewStockOrEtfOrderResponse> response) {
                 TradeItPreviewStockOrEtfOrderResponse previewResponse = response.body();
                 appendResponse(previewResponse);
@@ -292,12 +271,9 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void trade(String orderId) {
         TradeItPlaceStockOrEtfOrderRequest tradeRequest = new TradeItPlaceStockOrEtfOrderRequest(orderId);
-
-        Call<TradeItPlaceStockOrEtfOrderResponse> call = tradeItApiClient.placeStockOrEtfOrder(tradeRequest);
         appendRequest(tradeRequest);
 
-        call.enqueue(new CallbackWithError<TradeItPlaceStockOrEtfOrderResponse>() {
-            @Override
+        tradeItApiClient.placeStockOrEtfOrder(tradeRequest, new CallbackWithError<TradeItPlaceStockOrEtfOrderResponse>() {
             public void onResponse(Call<TradeItPlaceStockOrEtfOrderResponse> call, Response<TradeItPlaceStockOrEtfOrderResponse> response) {
                 TradeItPlaceStockOrEtfOrderResponse tradeResponse = response.body();
                 appendResponse(tradeResponse);
