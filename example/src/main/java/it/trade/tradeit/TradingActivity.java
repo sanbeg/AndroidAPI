@@ -12,10 +12,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import it.trade.tradeitapi.API.TradeItApiClient;
 import it.trade.tradeitapi.API.TradeItAccountLinker;
-import it.trade.tradeitapi.model.TradeItLinkedAccount;
+import it.trade.tradeitapi.API.TradeItApiClient;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
+import it.trade.tradeitapi.model.TradeItAvailableBrokersResponse;
 import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewResponse;
@@ -24,6 +24,7 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryRequest;
 import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
+import it.trade.tradeitapi.model.TradeItLinkedAccount;
 import it.trade.tradeitapi.model.TradeItOAuthLinkRequest;
 import it.trade.tradeitapi.model.TradeItOAuthLinkResponse;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
@@ -50,9 +51,11 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     Spinner actionSpinner;
 
     TradeItApiClient tradeItApiClient;
+    TradeItAccountLinker accountLinker;
+
     String selectedBroker;
     String selectedAction;
-    String accountNumber;
+    String accountNumber = "";
 
     TradeItLinkedAccount linkedAccount;
 
@@ -87,6 +90,8 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         adapter = ArrayAdapter.createFromResource(this, R.array.actions_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         actionSpinner.setAdapter(adapter);
+
+        accountLinker = new TradeItAccountLinker(API_KEY, TradeItEnvironment.QA);
     }
 
     @Override
@@ -98,6 +103,9 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
             }
             case R.id.go_button: {
                 switch (selectedAction) {
+                    case "Brokers":
+                        testAvailableBrokers();
+                        break;
                     case "Auth":
                         testAuthentication();
                         break;
@@ -119,7 +127,6 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         switch (parent.getId()) {
             case R.id.action_spinner: {
                 selectedAction = parent.getItemAtPosition(position).toString();
-
                 break;
             }
             case R.id.broker_spinner: {
@@ -157,9 +164,11 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         transactions(accountNumber);
     }
 
-    private void link(String broker, String username, String password) {
-        TradeItAccountLinker accountLinker = new TradeItAccountLinker(API_KEY, TradeItEnvironment.QA);
+    private void testAvailableBrokers() {
+        accountLinker.getAvailableBrokers(new CallbackWithSuccessAndError<TradeItAvailableBrokersResponse>());
+    }
 
+    private void link(String broker, String username, String password) {
         final TradeItOAuthLinkRequest oAuthLinkRequest = new TradeItOAuthLinkRequest(username, password, broker);
         appendRequest(oAuthLinkRequest);
 
@@ -171,7 +180,10 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
                     if (oAuthLinkResponse.status == TradeItResponseStatus.SUCCESS) {
                         linkedAccount = new TradeItLinkedAccount(oAuthLinkRequest, oAuthLinkResponse);
-//                        linkedAccount.save("My Special Linked Account");
+
+//                        Context context = getApplication();
+//                        accountLinker.save(context, linkedAccount, "My Special Linked Account");
+//                        List<TradeItLinkedAccount> linkedAccounts = accountLinker.getLinkedAccounts();
 
                         tradeItApiClient = new TradeItApiClient(linkedAccount);
                         auth();
@@ -187,10 +199,18 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         appendRequest("AUTHENTICATING...");
         tradeItApiClient.authenticate(new CallbackWithError<TradeItAuthenticateResponse>() {
             public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
-                TradeItAuthenticateResponse authResponse = response.body();
-                appendResponse(authResponse);
-                accountNumber = authResponse.accounts.get(0).accountNumber;
-                ping();
+                if (response.isSuccessful()) {
+                    TradeItAuthenticateResponse authResponse = response.body();
+                    appendResponse(authResponse);
+
+                    if (authResponse.status == TradeItResponseStatus.SUCCESS) {
+                        accountNumber = authResponse.accounts.get(0).accountNumber;
+                        ping();
+                    }
+
+                } else {
+                    appendResponse(response.raw());
+                }
             }
         });
     }
@@ -199,60 +219,35 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         TradeItGetAllOrderStatusRequest ordersRequest = new TradeItGetAllOrderStatusRequest(accountNumber);
         appendRequest(ordersRequest);
 
-        tradeItApiClient.getAllOrderStatus(ordersRequest, new CallbackWithError<TradeItOrderStatusResponse>() {
-            public void onResponse(Call<TradeItOrderStatusResponse> call, Response<TradeItOrderStatusResponse> response) {
-                TradeItOrderStatusResponse ordersResponse = response.body();
-                appendResponse(ordersResponse);
-            }
-        });
+        tradeItApiClient.getAllOrderStatus(ordersRequest, new CallbackWithSuccessAndError<TradeItOrderStatusResponse>());
     }
 
     private void transactions(String accountNumber) {
         TradeItGetAllTransactionsHistoryRequest transactionsRequest = new TradeItGetAllTransactionsHistoryRequest(accountNumber);
         appendRequest(transactionsRequest);
 
-        tradeItApiClient.getAllTransactionsHistory(transactionsRequest, new CallbackWithError<TradeItGetAllTransactionsHistoryResponse>() {
-            public void onResponse(Call<TradeItGetAllTransactionsHistoryResponse> call, Response<TradeItGetAllTransactionsHistoryResponse> response) {
-                TradeItGetAllTransactionsHistoryResponse transactionsResponse = response.body();
-                appendResponse(transactionsResponse);
-            }
-        });
+        tradeItApiClient.getAllTransactionsHistory(transactionsRequest, new CallbackWithSuccessAndError<TradeItGetAllTransactionsHistoryResponse>());
     }
 
     private void positions(String accountNumber) {
         TradeItGetPositionsRequest positionsRequest = new TradeItGetPositionsRequest(accountNumber, null);
         appendRequest(positionsRequest);
 
-        tradeItApiClient.getPositions(positionsRequest, new CallbackWithError<TradeItGetPositionsResponse>() {
-            public void onResponse(Call<TradeItGetPositionsResponse> call, Response<TradeItGetPositionsResponse> response) {
-                TradeItGetPositionsResponse positionsResponse = response.body();
-                appendResponse(positionsResponse);
-            }
-        });
+        tradeItApiClient.getPositions(positionsRequest, new CallbackWithSuccessAndError<TradeItGetPositionsResponse>());
     }
 
     private void balances(String accountNumber) {
         TradeItGetAccountOverviewRequest balanceRequest = new TradeItGetAccountOverviewRequest(accountNumber);
         appendRequest(balanceRequest);
 
-        tradeItApiClient.getAccountOverview(balanceRequest, new CallbackWithError<TradeItGetAccountOverviewResponse>() {
-            public void onResponse(Call<TradeItGetAccountOverviewResponse> call, Response<TradeItGetAccountOverviewResponse> response) {
-                TradeItGetAccountOverviewResponse balanceResponse = response.body();
-                appendResponse(balanceResponse);
-            }
-        });
+        tradeItApiClient.getAccountOverview(balanceRequest, new CallbackWithSuccessAndError<TradeItGetAccountOverviewResponse>());
     }
 
     private void ping() {
         TradeItRequestWithSession pingRequest = new TradeItRequestWithSession();
         appendRequest(pingRequest);
 
-        tradeItApiClient.keepSessionAlive(pingRequest, new CallbackWithError<TradeItResponse>() {
-            public void onResponse(Call<TradeItResponse> call, Response<TradeItResponse> response) {
-                TradeItResponse pingResponse = response.body();
-                appendResponse(pingResponse);
-            }
-        });
+        tradeItApiClient.keepSessionAlive(pingRequest, new CallbackWithSuccessAndError<TradeItResponse>());
     }
 
     private void preview() {
@@ -261,7 +256,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
                                                                                                        "1",
                                                                                                        "CMG",
                                                                                                        "stopLimit",
-                                                                                                       "400",
+                                                                                                       "300",
                                                                                                        "600",
                                                                                                        "day");
 
@@ -269,11 +264,15 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
         tradeItApiClient.previewStockOrEtfOrder(previewRequest, new CallbackWithError<TradeItPreviewStockOrEtfOrderResponse>() {
             public void onResponse(Call<TradeItPreviewStockOrEtfOrderResponse> call, Response<TradeItPreviewStockOrEtfOrderResponse> response) {
-                TradeItPreviewStockOrEtfOrderResponse previewResponse = response.body();
-                appendResponse(previewResponse);
+                if (response.isSuccessful()) {
+                    TradeItPreviewStockOrEtfOrderResponse previewResponse = response.body();
+                    appendResponse(previewResponse);
 
-                if (previewResponse.status.equals("REVIEW_ORDER")) {
-                    trade(previewResponse.orderId);
+                    if (previewResponse.status.equals(TradeItResponseStatus.REVIEW_ORDER)) {
+                        trade(previewResponse.orderId);
+                    }
+                } else {
+                    appendResponse(response.raw());
                 }
             }
         });
@@ -283,17 +282,23 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         TradeItPlaceStockOrEtfOrderRequest tradeRequest = new TradeItPlaceStockOrEtfOrderRequest(orderId);
         appendRequest(tradeRequest);
 
-        tradeItApiClient.placeStockOrEtfOrder(tradeRequest, new CallbackWithError<TradeItPlaceStockOrEtfOrderResponse>() {
-            public void onResponse(Call<TradeItPlaceStockOrEtfOrderResponse> call, Response<TradeItPlaceStockOrEtfOrderResponse> response) {
-                TradeItPlaceStockOrEtfOrderResponse tradeResponse = response.body();
-                appendResponse(tradeResponse);
-            }
-        });
+        tradeItApiClient.placeStockOrEtfOrder(tradeRequest, new CallbackWithSuccessAndError<TradeItPlaceStockOrEtfOrderResponse>());
     }
 
     private abstract class CallbackWithError<T> implements Callback<T> {
         public void onFailure(Call call, Throwable t) {
             appendError(t);
+        }
+    }
+
+    private class CallbackWithSuccessAndError<T> extends CallbackWithError<T> {
+        public void onResponse(Call<T> call, Response<T> response) {
+            if (response.isSuccessful()) {
+                T tradeItResponse = response.body();
+                appendResponse(tradeItResponse);
+            } else {
+                appendResponse(response.raw());
+            }
         }
     }
 

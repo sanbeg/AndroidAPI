@@ -24,21 +24,10 @@
     </string-array>
 
     <string-array name="actions_array">
+        <item>Brokers</item>
         <item>Auth</item>
         <item>Trade</item>
         <item>Account</item>
-        <!--<item>oAuthLink</item>-->
-        <!--<item>Authenticate</item>-->
-        <!--<item>Security Question</item>-->
-        <!--<item>Close Session</item>-->
-        <!--<item>Keep Alive</item>-->
-        <!--<item>oAuth Update</item>-->
-        <!--<item>oAuth Delete</item>-->
-        <!--<item>Preview</item>-->
-        <!--<item>Trade</item>-->
-        <!--<item>Orders</item>-->
-        <!--<item>Balance</item>-->
-        <!--<item>Positions</item>-->
     </string-array>
 
 </resources>
