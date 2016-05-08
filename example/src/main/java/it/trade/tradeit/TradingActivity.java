@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import it.trade.tradeitapi.API.TradeItAccountLinker;
 import it.trade.tradeitapi.API.TradeItApiClient;
+import it.trade.tradeitapi.model.TradeItLinkAccountRequest;
+import it.trade.tradeitapi.model.TradeItLinkAccountResponse;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
 import it.trade.tradeitapi.model.TradeItAvailableBrokersResponse;
 import it.trade.tradeitapi.model.TradeItEnvironment;
@@ -25,8 +27,7 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
 import it.trade.tradeitapi.model.TradeItLinkedAccount;
-import it.trade.tradeitapi.model.TradeItOAuthLinkRequest;
-import it.trade.tradeitapi.model.TradeItOAuthLinkResponse;
+import it.trade.tradeitapi.model.TradeItRelinkAccountRequest;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderResponse;
@@ -106,8 +107,8 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
                     case "Brokers":
                         testAvailableBrokers();
                         break;
-                    case "Auth":
-                        testAuthentication();
+                    case "Link/Auth":
+                        testLinkingAndAuthentication();
                         break;
                     case "Trade":
                         testTrading(accountNumber);
@@ -146,7 +147,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     public void onNothingSelected(AdapterView<?> parent) {
     }
 
-    private void testAuthentication() {
+    private void testLinkingAndAuthentication() {
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
@@ -154,7 +155,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void testTrading(String accountNumber) {
-        preview();
+        preview(accountNumber);
     }
 
     private void testAccount(String accountNumber) {
@@ -165,28 +166,25 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void testAvailableBrokers() {
+        appendRequest("GETTING AVAILABLE BROKERS...");
         accountLinker.getAvailableBrokers(new CallbackWithSuccessAndError<TradeItAvailableBrokersResponse>());
     }
 
-    private void link(String broker, String username, String password) {
-        final TradeItOAuthLinkRequest oAuthLinkRequest = new TradeItOAuthLinkRequest(username, password, broker);
-        appendRequest(oAuthLinkRequest);
+    private void link(String broker, final String username, final String password) {
+        final TradeItLinkAccountRequest linkAccountRequest = new TradeItLinkAccountRequest(username, password, broker);
+        appendRequest(linkAccountRequest);
 
-        accountLinker.linkBrokerAccount(oAuthLinkRequest, new CallbackWithError<TradeItOAuthLinkResponse>() {
-            public void onResponse(Call<TradeItOAuthLinkResponse> call, Response<TradeItOAuthLinkResponse> response) {
+        accountLinker.linkBrokerAccount(linkAccountRequest, new CallbackWithError<TradeItLinkAccountResponse>() {
+            public void onResponse(Call<TradeItLinkAccountResponse> call, Response<TradeItLinkAccountResponse> response) {
                 if (response.isSuccessful()) {
-                    TradeItOAuthLinkResponse oAuthLinkResponse = response.body();
-                    appendResponse(oAuthLinkResponse);
+                    TradeItLinkAccountResponse linkAccountResponse = response.body();
+                    appendResponse(linkAccountResponse);
 
-                    if (oAuthLinkResponse.status == TradeItResponseStatus.SUCCESS) {
-                        linkedAccount = new TradeItLinkedAccount(oAuthLinkRequest, oAuthLinkResponse);
+                    if (linkAccountResponse.status == TradeItResponseStatus.SUCCESS) {
+                        linkedAccount = new TradeItLinkedAccount(linkAccountRequest, linkAccountResponse);
+                        relink(linkedAccount, username, password);
 
-//                        Context context = getApplication();
-//                        accountLinker.save(context, linkedAccount, "My Special Linked Account");
-//                        List<TradeItLinkedAccount> linkedAccounts = accountLinker.getLinkedAccounts();
-
-                        tradeItApiClient = new TradeItApiClient(linkedAccount);
-                        auth();
+                        // TODO: Test link save/retrieve
                     }
                 } else {
                     appendResponse(response.raw());
@@ -195,7 +193,30 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
-    private void auth() {
+    private void relink(final TradeItLinkedAccount linkedAccount, String username, String password) {
+        TradeItRelinkAccountRequest relinkAccountRequest = new TradeItRelinkAccountRequest(linkedAccount, username, password);
+        appendRequest(relinkAccountRequest);
+
+        accountLinker.relinkBrokerAccount(relinkAccountRequest, new CallbackWithError<TradeItLinkAccountResponse>() {
+            public void onResponse(Call<TradeItLinkAccountResponse> call, Response<TradeItLinkAccountResponse> response) {
+                if (response.isSuccessful()) {
+                    TradeItLinkAccountResponse authResponse = response.body();
+                    appendResponse(authResponse);
+
+                    if (authResponse.status == TradeItResponseStatus.SUCCESS) {
+                        linkedAccount.update(authResponse);
+                        auth(linkedAccount);
+                    }
+                } else {
+                    appendResponse(response.raw());
+                }
+            }
+        });
+    }
+
+    private void auth(TradeItLinkedAccount linkedAccount) {
+        tradeItApiClient = new TradeItApiClient(linkedAccount);
+
         appendRequest("AUTHENTICATING...");
         tradeItApiClient.authenticate(new CallbackWithError<TradeItAuthenticateResponse>() {
             public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
@@ -204,10 +225,11 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
                     appendResponse(authResponse);
 
                     if (authResponse.status == TradeItResponseStatus.SUCCESS) {
+                        // TODO: Test closeSession
+
                         accountNumber = authResponse.accounts.get(0).accountNumber;
                         ping();
                     }
-
                 } else {
                     appendResponse(response.raw());
                 }
@@ -250,7 +272,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         tradeItApiClient.keepSessionAlive(pingRequest, new CallbackWithSuccessAndError<TradeItResponse>());
     }
 
-    private void preview() {
+    private void preview(String accountNumber) {
         TradeItPreviewStockOrEtfOrderRequest previewRequest = new TradeItPreviewStockOrEtfOrderRequest(accountNumber,
                                                                                                        "buy",
                                                                                                        "1",

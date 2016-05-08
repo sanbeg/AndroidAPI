@@ -25,7 +25,7 @@
 
     <string-array name="actions_array">
         <item>Brokers</item>
-        <item>Auth</item>
+        <item>Link/Auth</item>
         <item>Trade</item>
         <item>Account</item>
     </string-array>

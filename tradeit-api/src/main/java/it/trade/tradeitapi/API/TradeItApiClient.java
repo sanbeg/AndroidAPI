@@ -2,7 +2,6 @@ package it.trade.tradeitapi.API;
 
 import java.util.UUID;
 
-import it.trade.tradeitapi.model.TradeItLinkedAccount;
 import it.trade.tradeitapi.model.TradeItAnswerSecurityQuestionRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
@@ -15,6 +14,7 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
 import it.trade.tradeitapi.model.TradeItGetSingleOrderStatusRequest;
+import it.trade.tradeitapi.model.TradeItLinkedAccount;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderResponse;
@@ -87,6 +87,11 @@ public class TradeItApiClient {
     }
 
     public void keepSessionAlive(TradeItRequestWithSession request, Callback<TradeItResponse> callback) {
+        injectSession(request);
+        tradeItApi.keepSessionAlive(request).enqueue(new PassthroughCallback<>(callback));
+    }
+
+    public void closeSession(TradeItRequestWithSession request, Callback<TradeItResponse> callback) {
         injectSession(request);
         tradeItApi.keepSessionAlive(request).enqueue(new PassthroughCallback<>(callback));
     }

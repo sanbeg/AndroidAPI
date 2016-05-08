@@ -3,7 +3,7 @@ package it.trade.tradeitapi.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class TradeItOAuthUpdateRequest extends TradeItRequestWithKey {
+public class TradeItRelinkAccountRequest extends TradeItRequestWithKey {
     @SerializedName("id")
     @Expose
     public String id;
@@ -20,16 +20,23 @@ public class TradeItOAuthUpdateRequest extends TradeItRequestWithKey {
     @Expose
     public String userId;
 
-    public TradeItOAuthUpdateRequest(String id, String password, String broker, String userId) {
-        this.id = id;
+    public TradeItRelinkAccountRequest(TradeItLinkedAccount linkedAccount, String brokerLoginId, String password) {
+        this.id = brokerLoginId;
+        this.password = password;
+        this.broker = linkedAccount.broker;
+        this.userId = linkedAccount.userId;
+    }
+
+    public TradeItRelinkAccountRequest(String brokerLoginId, String password, String broker, String linkedAccountUserId) {
+        this.id = brokerLoginId;
         this.password = password;
         this.broker = broker;
-        this.userId = userId;
+        this.userId = linkedAccountUserId;
     }
 
     @Override
     public String toString() {
-        return "TradeItOAuthUpdateRequest{" +
+        return "TradeItRelinkAccountRequest{" +
                 "id='" + id + '\'' +
                 ", password='" + password + '\'' +
                 ", broker='" + broker + '\'' +

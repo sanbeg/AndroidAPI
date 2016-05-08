@@ -3,7 +3,7 @@ package it.trade.tradeitapi.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class TradeItOAuthLinkResponse extends TradeItResponse {
+public class TradeItUnlinkAccountRequest extends TradeItRequestWithKey {
     @SerializedName("userToken")
     @Expose
     public String userToken;
@@ -12,9 +12,16 @@ public class TradeItOAuthLinkResponse extends TradeItResponse {
     @Expose
     public String userId;
 
+    public TradeItUnlinkAccountRequest(TradeItLinkedAccount linkedAccount) {
+        this.userToken = linkedAccount.userToken;
+        this.userId = linkedAccount.userId;
+    }
+
+    private TradeItUnlinkAccountRequest() {}
+
     @Override
     public String toString() {
-        return "TradeItOAuthLinkResponse {" +
+        return "TradeItAuthenticateRequest{" +
                 "userToken='" + userToken + '\'' +
                 ", userId='" + userId + '\'' +
                 "}, " + super.toString();

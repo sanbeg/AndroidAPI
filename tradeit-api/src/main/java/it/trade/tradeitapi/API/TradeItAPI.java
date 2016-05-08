@@ -12,9 +12,6 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
 import it.trade.tradeitapi.model.TradeItGetSingleOrderStatusRequest;
-import it.trade.tradeitapi.model.TradeItOAuthLinkRequest;
-import it.trade.tradeitapi.model.TradeItOAuthLinkResponse;
-import it.trade.tradeitapi.model.TradeItOAuthUpdateRequest;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderResponse;
@@ -27,17 +24,14 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface TradeItApi {
-    @POST("/api/v1/user/oAuthLink")
-    Call<TradeItOAuthLinkResponse> oAuthLink(@Body TradeItOAuthLinkRequest request);
-
     @POST("/api/v1/user/authenticate")
     Call<TradeItAuthenticateResponse> authenticate(@Body TradeItAuthenticateRequest request);
 
+    @POST("/api/v1/user/closeSession")
+    Call<TradeItResponse> closeSession(@Body TradeItRequestWithSession request);
+
     @POST("/api/v1/user/answerSecurityQuestion")
     Call<TradeItAuthenticateResponse> answerSecurityQuestion(@Body TradeItAnswerSecurityQuestionRequest request);
-
-    @POST("/api/v1/user/oAuthUpdate")
-    Call<TradeItOAuthLinkResponse> oAuthUpdate(@Body TradeItOAuthUpdateRequest request);
 
     @POST("/api/v1/user/keepSessionAlive")
     Call<TradeItResponse> keepSessionAlive(@Body TradeItRequestWithSession request);

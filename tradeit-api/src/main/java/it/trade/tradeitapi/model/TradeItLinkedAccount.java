@@ -2,16 +2,6 @@ package it.trade.tradeitapi.model;
 
 import com.google.gson.annotations.SerializedName;
 
-/*
-==========
-Shared Preferences
-==========
-import android.content.Context;
-import android.content.SharedPreferences;
-
-
-*/
-
 public class TradeItLinkedAccount {
     @SerializedName("label")
     public String label = "";
@@ -31,28 +21,20 @@ public class TradeItLinkedAccount {
     @SerializedName("")
     public String apiKey = "";
 
-    public TradeItLinkedAccount(TradeItOAuthLinkRequest oAuthLinkRequest, TradeItOAuthLinkResponse oAuthLinkResponse) {
-        this.broker = oAuthLinkRequest.broker;
-        this.apiKey = oAuthLinkRequest.apiKey;
-        this.environment = oAuthLinkRequest.environment;
-        this.userId = oAuthLinkResponse.userId;
-        this.userToken = oAuthLinkResponse.userToken;
+    public TradeItLinkedAccount(TradeItLinkAccountRequest linkAccountRequest, TradeItLinkAccountResponse linkAccountResponse) {
+        this.broker = linkAccountRequest.broker;
+        this.apiKey = linkAccountRequest.apiKey;
+        this.environment = linkAccountRequest.environment;
+        this.userId = linkAccountResponse.userId;
+        this.userToken = linkAccountResponse.userToken;
     }
-
-//    public TradeItLinkedAccount(String broker, String apiKey, TradeItEnvironment environment, String userToken, String userId) {
-//        this.broker = broker;
-//        this.apiKey = apiKey;
-//        this.environment = environment;
-//        this.userId = userId;
-//        this.userToken = userToken;
-//    }
 
     private TradeItLinkedAccount() {}
 
-//    public void update(TradeItOAuthLinkResponse response) {
-//
-//    }
-
+    public void update(TradeItLinkAccountResponse linkAccountResponse) {
+        this.userId = linkAccountResponse.userId;
+        this.userToken = linkAccountResponse.userToken;
+    }
 
     @Override
     public String toString() {
