@@ -1,7 +1,9 @@
 #Android Trade.it API
 Android library that wraps the Trade.it API using the [Retrofit 2](http://square.github.io/retrofit/) library.
 
-Detailed API documentation can be found [here](https://www.trade.it/api).
+Detailed API documentation can be found here: https://www.trade.it/api.
+
+JCenter repo can be found here: https://bintray.com/tradeit/maven/tradeit-api/view
 
 For example usage, see the example app included with the library.
 
@@ -15,7 +17,7 @@ Query which brokers are available for your key:
 ```
 accountLinker.getAvailableBrokers(new Callback<TradeItAvailableBrokersResponse>() {
   public void onResponse(Call<TradeItAvailableBrokersResponse> call, Response<TradeItAvailableBrokersResponse> response) {
-    // Check that the http call was successful before proceeding
+    // Check that the http request was successful (status code 2XX) before proceeding
     if (response.isSuccessful()) {
       TradeItAvailableBrokersResponse brokersResponse = response.body();
 
@@ -23,7 +25,11 @@ accountLinker.getAvailableBrokers(new Callback<TradeItAvailableBrokersResponse>(
       if (linkAccountResponse.status == TradeItResponseStatus.SUCCESS) {
         // Let user choose a broker based on the the brokers in brokersResponse.brokerList
       }
-    }
+    } else { // Server returned non-2XX status (e.g. 404, 503, etc.) }
+  }
+  
+  public void onFailure(Call call, Throwable t) {
+    // Something went wrong trying to send the request, check that the device is connected to the internet...
   }
 });
 ```
@@ -32,7 +38,7 @@ Link (authorize) a user's account:
 // Create a request from the user's login credentials
 final TradeItLinkAccountRequest linkAccountRequest = new TradeItLinkAccountRequest("broker_account_username", "broker_account_password", "Fidelity");
 
-accountLinker.linkBrokerAccount(linkAccountRequest, new CallbackWithError<TradeItLinkAccountResponse>() {
+accountLinker.linkBrokerAccount(linkAccountRequest, new Callback<TradeItLinkAccountResponse>() {
   public void onResponse(Call<TradeItLinkAccountResponse> call, Response<TradeItLinkAccountResponse> response) {
     if (response.isSuccessful()) {
       TradeItLinkAccountResponse linkAccountResponse = response.body();
@@ -52,7 +58,7 @@ Authenticate a user session and get the user's accounts with the broker:
 // Initialize an instance of the API client from the TradeItLinkedAccount instance
 TradeItApiClient tradeItApiClient = new TradeItApiClient(linkedAccount);
 
-tradeItApiClient.authenticate(new CallbackWithError<TradeItAuthenticateResponse>() {
+tradeItApiClient.authenticate(new Callback<TradeItAuthenticateResponse>() {
   public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
   if (response.isSuccessful()) {
     TradeItAuthenticateResponse authResponse = response.body();
