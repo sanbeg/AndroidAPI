@@ -39,7 +39,7 @@ accountLinker.linkBrokerAccount(linkAccountRequest, new CallbackWithError<TradeI
 
       if (linkAccountResponse.status == TradeItResponseStatus.SUCCESS) {
         // The user's linked account is encapsulated in a TradeItLinkedAccount object.
-	// This object is initialized from a TradeItLinkAccountRequest and the corresponding successful TradeItLinkAccountResponse.
+        // This object is initialized from a TradeItLinkAccountRequest and the corresponding successful TradeItLinkAccountResponse.
         // TradeItLinkedAccount is annotated for gson serialization so that it can be saved on a device for ongoing use.
         TradeItLinkedAccount linkedAccount = new TradeItLinkedAccount(linkAccountRequest, linkAccountResponse);
       }
@@ -87,7 +87,7 @@ tradeItApiClient.previewStockOrEtfOrder(previewRequest, new CallbackWithError<Tr
 
       if (previewResponse.status.equals(TradeItResponseStatus.REVIEW_ORDER)) {
         // Present the order preview to the user for confirmation.
-	// Upon receiving user's confirmation, the trade can be completed with tradeItApiClient.trade
+        // Upon receiving user's confirmation, the trade can be completed with tradeItApiClient.trade
       }
     }
   }
