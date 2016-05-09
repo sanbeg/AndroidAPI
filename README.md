@@ -17,7 +17,7 @@ accountLinker.getAvailableBrokers(new Callback<TradeItAvailableBrokersResponse>(
   public void onResponse(Call<TradeItAvailableBrokersResponse> call, Response<TradeItAvailableBrokersResponse> response) {
     // Check that the http call was successful before proceeding
     if (response.isSuccessful()) {
-	    TradeItAvailableBrokersResponse brokersResponse = response.body();
+      TradeItAvailableBrokersResponse brokersResponse = response.body();
 
       // Check the status of the API response
       if (linkAccountResponse.status == TradeItResponseStatus.SUCCESS) {
@@ -39,7 +39,7 @@ accountLinker.linkBrokerAccount(linkAccountRequest, new CallbackWithError<TradeI
 
       if (linkAccountResponse.status == TradeItResponseStatus.SUCCESS) {
         // The user's linked account is encapsulated in a TradeItLinkedAccount object.
-	      // This object is initialized from a TradeItLinkAccountRequest and the corresponding successful TradeItLinkAccountResponse.
+	// This object is initialized from a TradeItLinkAccountRequest and the corresponding successful TradeItLinkAccountResponse.
         // TradeItLinkedAccount is annotated for gson serialization so that it can be saved on a device for ongoing use.
         TradeItLinkedAccount linkedAccount = new TradeItLinkedAccount(linkAccountRequest, linkAccountResponse);
       }
@@ -62,10 +62,10 @@ tradeItApiClient.authenticate(new CallbackWithError<TradeItAuthenticateResponse>
       // The trading accounts associated with the linked user account are available in authResponse.accounts
     } else if (authResponse.status == TradeItResponseStatus.INFORMATION_NEEDED) {
       // The broker is requesting a security question be answered by the user to authenticate.
-			// Display the question authResponse.securityQuestion to the user.
-			// Use tradeItApiClient.answerSecurityQuestion to submit the user's answer to the broker.
-		}
-	}
+      // Display the question authResponse.securityQuestion to the user.
+      // Use tradeItApiClient.answerSecurityQuestion to submit the user's answer to the broker.
+    }
+  }
 });
 ```
 Submit a trade to the broker for preview:
@@ -85,12 +85,12 @@ tradeItApiClient.previewStockOrEtfOrder(previewRequest, new CallbackWithError<Tr
     if (response.isSuccessful()) {
       TradeItPreviewStockOrEtfOrderResponse previewResponse = response.body();
 
-			if (previewResponse.status.equals(TradeItResponseStatus.REVIEW_ORDER)) {
+      if (previewResponse.status.equals(TradeItResponseStatus.REVIEW_ORDER)) {
         // Present the order preview to the user for confirmation.
-				// Upon receiving user's confirmation, the trade can be completed with tradeItApiClient.trade
+	// Upon receiving user's confirmation, the trade can be completed with tradeItApiClient.trade
       }
-		}
-	}
+    }
+  }
 });
 ```
 
