@@ -37,6 +37,8 @@ public class TradeItPreviewStockOrEtfOrderRequest extends TradeItRequestWithSess
     @Expose
     public String orderExpiration;
 
+    public TradeItPreviewStockOrEtfOrderRequest() {};
+
     public TradeItPreviewStockOrEtfOrderRequest(String accountNumber,
                                                 String orderAction,
                                                 String orderQuantity,
