@@ -1,4 +1,4 @@
-#Android Trade.it API
+#Android Trade.it API Client
 Android library that wraps the Trade.it API using the [Retrofit 2](http://square.github.io/retrofit/) library.
 
 Detailed API documentation can be found here: https://www.trade.it/api.
