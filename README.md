@@ -3,9 +3,9 @@ Android library that wraps the Trade.it API using the [Retrofit 2](http://square
 
 Detailed API documentation can be found here: https://www.trade.it/api.
 
-JCenter repo can be found here: https://bintray.com/tradeit/maven/tradeit-api/view
+The JCenter repo can be found here: https://bintray.com/tradeit/maven/tradeit-api/view
 
-For example usage, see the example app included with the library.
+For example usage, see the example app included with the library.  It is ready to build and load onto a device or the simulator and has basic functionality to link an account, authenticate, make a trade, and fetch account details like balances and positions.
 
 #Quick Start
 To link a user's account and to manage linked accounts, use the `TradeItAccountLinker`:
