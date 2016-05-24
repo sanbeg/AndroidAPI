@@ -1,5 +1,6 @@
 package it.trade.tradeit;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -58,6 +59,8 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     String selectedAction;
     String accountNumber = "";
 
+    Context context;
+
     TradeItLinkedAccount linkedAccount;
 
     @Override
@@ -93,6 +96,8 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         actionSpinner.setAdapter(adapter);
 
         accountLinker = new TradeItAccountLinker(API_KEY, TradeItEnvironment.QA);
+
+        context = getApplication();
     }
 
     @Override
