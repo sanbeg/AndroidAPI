@@ -1,5 +1,21 @@
 package it.trade.tradeitapi.API;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import it.trade.tradeitapi.exception.TradeItDeleteLinkedAccountException;
+import it.trade.tradeitapi.exception.TradeItKeystoreServiceCreateKeyException;
+import it.trade.tradeitapi.exception.TradeItRetrieveLinkedAccountException;
+import it.trade.tradeitapi.exception.TradeItSaveLinkedAccountException;
+import it.trade.tradeitapi.exception.TradeItUpdateLinkedAccountException;
 import it.trade.tradeitapi.model.TradeItAvailableBrokersResponse;
 import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItLinkAccountRequest;
@@ -9,6 +25,7 @@ import it.trade.tradeitapi.model.TradeItRelinkAccountRequest;
 import it.trade.tradeitapi.model.TradeItRequestWithKey;
 import it.trade.tradeitapi.model.TradeItResponse;
 import it.trade.tradeitapi.model.TradeItUnlinkAccountRequest;
+import it.trade.tradeitapi.utils.TradeItKeystoreService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -16,21 +33,22 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TradeItAccountLinker {
+    private static final String TRADE_IT_LINKED_ACCOUNTS_ALIAS = "TRADE_IT_LINKED_ACCOUNTS_ALIAS";
     private static final String TRADE_IT_SHARED_PREFS_KEY = "TRADE_IT_SHARED_PREFS_KEY";
     private static final String TRADE_IT_LINKED_ACCOUNTS_KEY = "TRADE_IT_LINKED_ACCOUNTS_KEY";
     private TradeItAccountLinkApi tradeItAccountLinkApi;
     private TradeItEnvironment environment;
+    private static TradeItKeystoreService tradeItKeystoreService = new TradeItKeystoreService(TRADE_IT_LINKED_ACCOUNTS_ALIAS);
 
     public TradeItAccountLinker(String apiKey, TradeItEnvironment environment) {
         TradeItRequestWithKey.API_KEY = apiKey;
         this.environment = environment;
-
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(environment.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        tradeItAccountLinkApi = retrofit.create(TradeItAccountLinkApi.class);
+        this.tradeItAccountLinkApi = retrofit.create(TradeItAccountLinkApi.class);
     }
 
     private TradeItAccountLinker() {
@@ -55,59 +73,110 @@ public class TradeItAccountLinker {
         tradeItAccountLinkApi.unlinkAccount(request).enqueue(new PassthroughCallback<>(callback));
     }
 
-/////////////////////////////////////////////////////////////
+    public static void initKeyStore(Context context) throws TradeItKeystoreServiceCreateKeyException {
+            tradeItKeystoreService.createKeyIfNotExists(context);
+    }
 
-//    private static final String TRADE_IT_SHARED_PREFS_KEY = "TRADE_IT_SHARED_PREFS_KEY";
-//    private static final String TRADE_IT_LINKED_ACCOUNTS_KEY = "TRADE_IT_LINKED_ACCOUNTS_KEY";
-//
-//    public static void saveLinkedAccount(Context context, TradeItLinkedAccount linkedAccount, String accountLabel) {
-//        linkedAccount.label = accountLabel;
-//
-//        Gson gson = new Gson();
-//        String linkedAccountJson = gson.toJson(linkedAccount);
-//
-//        // Generate UUID for KeyStore
-//        // Add UUID to TradeItLinkedAccount (may have to add this to the class)
-//        // Save linkedAccountJson into KeyStore using UUID as key
-//
-//        SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
-//        Set<String> linkedAccountJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, new HashSet<String>());
-//
-//        // If the linkedAccountJson is stored in the KeyStore then you should just save the UUID in the SharedPreferences
-//        linkedAccountJsonSet.add(linkedAccountJson);
-//
-//        SharedPreferences.Editor editor = sharedPreferences.edit();
-//        editor.putStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, linkedAccountJsonSet);
-//        editor.commit();
-//    }
-//
-//    public static List<TradeItLinkedAccount> getLinkedAccounts(Context context) {
-//        SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
-//        Set<String> linkedAccountJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, new HashSet<String>());
-//
-//        List<TradeItLinkedAccount> linkedAccountList = new ArrayList<>();
-//
-//        Gson gson = new Gson();
-//
-//        for (String linkedAccountJson : linkedAccountJsonSet) {
-//            TradeItLinkedAccount linkedAccount = gson.fromJson(linkedAccountJson, TradeItLinkedAccount.class);
-//            linkedAccountList.add(linkedAccount);
-//        }
-//
-//        return linkedAccountList;
-//    }
-//
-//    public static void updateLinkedAccount(Context context, TradeItLinkedAccount linkedAccount) {
-//        // Serialize the TradeItLinkedAccount with gson.toJson
-//        // Replace the old serialized JSON in the KeyStore with the new JSON using the UUID
-//    }
-//
-//    public static void deleteLinkedAccount(Context context, TradeItLinkedAccount linkedAccount) {
-//        // Delete the KeyStore value for the UUID of the linkedAccount.
-//        // Delete the SharedPreferences value for the UUID of the linkedAccount:  linkedAccountJsonSet.remove(linkedAccount.uuid)
-//    }
+    public static void saveLinkedAccount(Context context, TradeItLinkedAccount linkedAccount, String accountLabel) throws TradeItSaveLinkedAccountException {
+        try {
+            linkedAccount.label = accountLabel;
+            linkedAccount.uUID = UUID.randomUUID().toString();
+            Gson gson = new Gson();
+            String linkedAccountJson = gson.toJson(linkedAccount);
 
-/////////////////////////////////////////////////////////////
+            SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
+            Set<String> linkedAccountEncryptedJsonSet = sharedPreferences.getStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, new HashSet<String>());
+            String encryptedString = tradeItKeystoreService.encryptString(linkedAccountJson);
+            linkedAccountEncryptedJsonSet.add(encryptedString);
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, linkedAccountEncryptedJsonSet);
+            editor.commit();
+        } catch (Exception e) {
+            throw new TradeItSaveLinkedAccountException("Error saving linkedAccount for accountLabel: " + accountLabel, e);
+        }
+    }
+
+    public static List<TradeItLinkedAccount> getLinkedAccounts(Context context) throws TradeItRetrieveLinkedAccountException {
+        try {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
+            Set<String> linkedAccountEncryptedJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, new HashSet<String>());
+
+            List<TradeItLinkedAccount> linkedAccountList = new ArrayList<>();
+            Gson gson = new Gson();
+
+            for (String linkedAccountEncryptedJson : linkedAccountEncryptedJsonSet) {
+                String linkedAccountJson = tradeItKeystoreService.decryptString(linkedAccountEncryptedJson);
+                TradeItLinkedAccount linkedAccount = gson.fromJson(linkedAccountJson, TradeItLinkedAccount.class);
+                linkedAccountList.add(linkedAccount);
+            }
+
+            return linkedAccountList;
+
+        } catch (Exception e) {
+            throw new TradeItRetrieveLinkedAccountException("Error getting linkedAccounts ", e);
+        }
+    }
+
+    public static void updateLinkedAccount(Context context, TradeItLinkedAccount linkedAccount) throws TradeItUpdateLinkedAccountException {
+        try {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
+            Set<String> linkedAccountEncryptedJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, new HashSet<String>());
+            Gson gson = new Gson();
+
+            for (String linkedAccountEncryptedJson : linkedAccountEncryptedJsonSet) {
+                String linkedAccountJson = tradeItKeystoreService.decryptString(linkedAccountEncryptedJson);
+                if (linkedAccountJson.contains(linkedAccount.uUID)) {
+                    linkedAccountJson = gson.toJson(linkedAccount);
+                    String encryptedString = tradeItKeystoreService.encryptString(linkedAccountJson);
+                    linkedAccountEncryptedJsonSet.remove(linkedAccountEncryptedJson);
+                    linkedAccountEncryptedJsonSet.add(encryptedString);
+                    break;
+                }
+            }
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, linkedAccountEncryptedJsonSet);
+            editor.commit();
+        } catch (Exception e) {
+            throw new TradeItUpdateLinkedAccountException("Error updating linkedAccount " + linkedAccount.uUID, e);
+        }
+    }
+
+    public static void deleteLinkedAccount(Context context, TradeItLinkedAccount linkedAccount) throws TradeItDeleteLinkedAccountException {
+        try {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
+            Set<String> linkedAccountEncryptedJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, new HashSet<String>());
+
+            for (String linkedAccountEncryptedJson : linkedAccountEncryptedJsonSet) {
+                String linkedAccountJson = tradeItKeystoreService.decryptString(linkedAccountEncryptedJson);
+                if (linkedAccountJson.contains(linkedAccount.uUID)) {
+                    linkedAccountEncryptedJsonSet.remove(linkedAccountEncryptedJson);
+                    break;
+                }
+            }
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, linkedAccountEncryptedJsonSet);
+            editor.commit();
+        } catch (Exception e) {
+            throw new TradeItDeleteLinkedAccountException("Error deleting linkedAccount "+ linkedAccount.uUID, e);
+        }
+    }
+
+    public static void deleteAllLinkedAccount(Context context) throws TradeItDeleteLinkedAccountException {
+        try {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
+            Set<String> linkedAccountEncryptedJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, new HashSet<String>());
+
+            linkedAccountEncryptedJsonSet.clear();
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, linkedAccountEncryptedJsonSet);
+            editor.commit();
+        } catch (Exception e) {
+            throw new TradeItDeleteLinkedAccountException("Error deleting all linkedAccounts ", e);
+        }
+    }
 
     private class PassthroughCallback<T> implements Callback<T> {
         Callback<T> callback;
