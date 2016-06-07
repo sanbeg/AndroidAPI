@@ -41,7 +41,7 @@ public class TradeItKeystoreService {
             if (!keyStore.containsAlias(alias)) {
                 Calendar start = Calendar.getInstance();
                 Calendar end = Calendar.getInstance();
-                end.add(Calendar.YEAR, 1);
+                end.add(Calendar.YEAR, 50);
                 KeyPairGeneratorSpec spec = new KeyPairGeneratorSpec.Builder(context)
                         .setAlias(alias)
                         .setSubject(new X500Principal("CN=TradeIt Link Accounts, O=TradeIt, C=US"))
