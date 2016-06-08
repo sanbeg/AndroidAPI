@@ -1,5 +1,6 @@
 package it.trade.tradeit;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -12,10 +13,15 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.List;
+
 import it.trade.tradeitapi.API.TradeItAccountLinker;
 import it.trade.tradeitapi.API.TradeItApiClient;
-import it.trade.tradeitapi.model.TradeItLinkAccountRequest;
-import it.trade.tradeitapi.model.TradeItLinkAccountResponse;
+import it.trade.tradeitapi.exception.TradeItDeleteLinkedAccountException;
+import it.trade.tradeitapi.exception.TradeItKeystoreServiceCreateKeyException;
+import it.trade.tradeitapi.exception.TradeItRetrieveLinkedAccountException;
+import it.trade.tradeitapi.exception.TradeItSaveLinkedAccountException;
+import it.trade.tradeitapi.exception.TradeItUpdateLinkedAccountException;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
 import it.trade.tradeitapi.model.TradeItAvailableBrokersResponse;
 import it.trade.tradeitapi.model.TradeItEnvironment;
@@ -26,13 +32,15 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryRequest;
 import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
+import it.trade.tradeitapi.model.TradeItLinkAccountRequest;
+import it.trade.tradeitapi.model.TradeItLinkAccountResponse;
 import it.trade.tradeitapi.model.TradeItLinkedAccount;
-import it.trade.tradeitapi.model.TradeItRelinkAccountRequest;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderResponse;
 import it.trade.tradeitapi.model.TradeItPreviewStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPreviewStockOrEtfOrderResponse;
+import it.trade.tradeitapi.model.TradeItRelinkAccountRequest;
 import it.trade.tradeitapi.model.TradeItRequestWithSession;
 import it.trade.tradeitapi.model.TradeItResponse;
 import it.trade.tradeitapi.model.TradeItResponseStatus;
@@ -57,6 +65,8 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     String selectedBroker;
     String selectedAction;
     String accountNumber = "";
+
+    Context context;
 
     TradeItLinkedAccount linkedAccount;
 
@@ -93,6 +103,14 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         actionSpinner.setAdapter(adapter);
 
         accountLinker = new TradeItAccountLinker(API_KEY, TradeItEnvironment.QA);
+
+        context = getApplication();
+
+        try {
+            TradeItAccountLinker.initKeyStore(context);
+        } catch (TradeItKeystoreServiceCreateKeyException e) {
+            appendError(e);
+        }
     }
 
     @Override
@@ -183,8 +201,10 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
                     if (linkAccountResponse.status == TradeItResponseStatus.SUCCESS) {
                         linkedAccount = new TradeItLinkedAccount(linkAccountRequest, linkAccountResponse);
                         relink(linkedAccount, username, password);
-
-                        // TODO: Test link save/retrieve
+                        saveLink(linkedAccount, username, password);
+                        retrieveLinks();
+                        updateLink(linkedAccount);
+                        deleteLink(linkedAccount);
                     }
                 } else {
                     appendResponse(response.raw());
@@ -214,6 +234,56 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
+    private void saveLink(final TradeItLinkedAccount linkedAccount, String username, String password) {
+        appendInternalOperation("SAVING LINKED ACCOUNT...");
+        try {
+            TradeItAccountLinker.saveLinkedAccount(context, linkedAccount, "labelGivenByTheUser");
+            appendSimpleMessage("account saved, uUID: " + linkedAccount.uUID);
+        }
+        catch (TradeItSaveLinkedAccountException e) {
+            appendError(e);
+        }
+    }
+
+    private void retrieveLinks() {
+        try {
+            appendInternalOperation("RETRIEVING LINKED ACCOUNTS...");
+            List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
+            appendSimpleMessage(tradeItLinkedAccountsList);
+        }
+        catch (TradeItRetrieveLinkedAccountException e) {
+            appendError(e);
+        }
+    }
+
+    private void updateLink(final TradeItLinkedAccount linkedAccount) {
+        linkedAccount.label = "updateLabel";
+        try {
+            appendInternalOperation("UPDATING LINKED ACCOUNT " + linkedAccount.uUID + " WITH A NEW LABEL: "+ linkedAccount.label);
+            TradeItAccountLinker.updateLinkedAccount(context, linkedAccount);
+            List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
+            appendSimpleMessage(tradeItLinkedAccountsList);
+        } catch (TradeItUpdateLinkedAccountException e) {
+            appendError(e);
+        } catch (TradeItRetrieveLinkedAccountException e) {
+            appendError(e);
+        }
+    }
+
+    private void deleteLink(final TradeItLinkedAccount linkedAccount) {
+        try {
+            appendInternalOperation("DELETING LINKED ACCOUNT " + linkedAccount.uUID);
+            TradeItAccountLinker.deleteLinkedAccount(context, linkedAccount);
+            appendInternalOperation("ARE THERE ANY LINKED ACCOUNTS ANYMORE ? ...");
+            List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
+            appendSimpleMessage(tradeItLinkedAccountsList.size() == 0 ? "NO!" : "Yes!: " + tradeItLinkedAccountsList);
+        }
+        catch (TradeItRetrieveLinkedAccountException e) {
+            appendError(e);
+        } catch (TradeItDeleteLinkedAccountException e) {
+            appendError(e);
+        }
+    }
     private void auth(TradeItLinkedAccount linkedAccount) {
         tradeItApiClient = new TradeItApiClient(linkedAccount);
 
@@ -326,6 +396,14 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void appendError(Throwable t) {
         outputTextView.append("\n=====\n\nERROR: " + t + "\n");
+    }
+
+    private void appendInternalOperation(Object operation) {
+        outputTextView.append("\n=====\n\nINTERNAL OPERATION: " + operation + "\n");
+    }
+
+    private void appendSimpleMessage(Object message) {
+        outputTextView.append("\n" + message + "\n");
     }
 
     private void appendRequest(Object request) {
