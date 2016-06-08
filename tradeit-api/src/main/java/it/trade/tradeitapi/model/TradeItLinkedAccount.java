@@ -15,11 +15,14 @@ public class TradeItLinkedAccount {
     @SerializedName("userId")
     public String userId = "";
 
-    @SerializedName("")
+    @SerializedName("environment")
     public TradeItEnvironment environment;
 
-    @SerializedName("")
+    @SerializedName("apiKey")
     public String apiKey = "";
+
+    @SerializedName("uUID")
+    public String uUID = "";
 
     public TradeItLinkedAccount(TradeItLinkAccountRequest linkAccountRequest, TradeItLinkAccountResponse linkAccountResponse) {
         this.broker = linkAccountRequest.broker;
@@ -44,6 +47,8 @@ public class TradeItLinkedAccount {
                 ", environment=" + environment +
                 ", apiKey='" + apiKey + '\'' +
                 ", broker='" + broker + '\'' +
+                ", label='" + label + '\'' +
+                ", uUID='" + uUID + '\'' +
                 '}';
     }
 }
