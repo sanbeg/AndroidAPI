@@ -53,6 +53,33 @@ accountLinker.linkBrokerAccount(linkAccountRequest, new Callback<TradeItLinkAcco
   }
 });
 ```
+Initialize the keystore in order to save/update/load/delete previous linked accounts:
+```
+TradeItAccountLinker.initKeyStore(context); 
+```
+Save a new linked account:
+```
+TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
+TradeItAccountLinker.saveLinkedAccount(context, linkedAccount, "MyAccount1");
+```
+Update a stored linked account:
+```
+TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
+TradeItAccountLinker.updateLinkedAccount(context, linkedAccount);
+```
+Get the stored linked accounts:
+```
+List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
+```
+Delete a stored linked account:
+```
+TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
+TradeItAccountLinker.deleteLinkedAccount(context, linkedAccount);
+```
+Delete all stored linked accounts:
+```
+TradeItAccountLinker.deleteAllLinkedAccount(context);
+```
 Authenticate a user session and get the user's accounts with the broker:
 ```
 // Initialize an instance of the API client from the TradeItLinkedAccount instance
