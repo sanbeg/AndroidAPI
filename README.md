@@ -53,7 +53,7 @@ accountLinker.linkBrokerAccount(linkAccountRequest, new Callback<TradeItLinkAcco
   }
 });
 ```
-Initialize the keystore in order to save/update/load/delete previous linked accounts:
+Initialize the keystore in order to save/update/load/delete previous linked accounts in the device:
 ```
 TradeItAccountLinker.initKeyStore(context); 
 ```
