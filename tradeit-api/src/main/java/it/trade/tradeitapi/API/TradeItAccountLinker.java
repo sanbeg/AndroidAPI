@@ -80,7 +80,7 @@ public class TradeItAccountLinker {
     public static void saveLinkedAccount(Context context, TradeItLinkedAccount linkedAccount, String accountLabel) throws TradeItSaveLinkedAccountException {
         try {
             linkedAccount.label = accountLabel;
-            linkedAccount.uUID = UUID.randomUUID().toString();
+            linkedAccount.uuid = UUID.randomUUID().toString();
             Gson gson = new Gson();
             String linkedAccountJson = gson.toJson(linkedAccount);
 
@@ -126,7 +126,7 @@ public class TradeItAccountLinker {
 
             for (String linkedAccountEncryptedJson : linkedAccountEncryptedJsonSet) {
                 String linkedAccountJson = tradeItKeystoreService.decryptString(linkedAccountEncryptedJson);
-                if (linkedAccountJson.contains(linkedAccount.uUID)) {
+                if (linkedAccountJson.contains(linkedAccount.uuid)) {
                     linkedAccountJson = gson.toJson(linkedAccount);
                     String encryptedString = tradeItKeystoreService.encryptString(linkedAccountJson);
                     linkedAccountEncryptedJsonSet.remove(linkedAccountEncryptedJson);
@@ -138,7 +138,7 @@ public class TradeItAccountLinker {
             editor.putStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, linkedAccountEncryptedJsonSet);
             editor.commit();
         } catch (Exception e) {
-            throw new TradeItUpdateLinkedAccountException("Error updating linkedAccount " + linkedAccount.uUID, e);
+            throw new TradeItUpdateLinkedAccountException("Error updating linkedAccount " + linkedAccount.uuid, e);
         }
     }
 
@@ -149,7 +149,7 @@ public class TradeItAccountLinker {
 
             for (String linkedAccountEncryptedJson : linkedAccountEncryptedJsonSet) {
                 String linkedAccountJson = tradeItKeystoreService.decryptString(linkedAccountEncryptedJson);
-                if (linkedAccountJson.contains(linkedAccount.uUID)) {
+                if (linkedAccountJson.contains(linkedAccount.uuid)) {
                     linkedAccountEncryptedJsonSet.remove(linkedAccountEncryptedJson);
                     break;
                 }
@@ -159,7 +159,7 @@ public class TradeItAccountLinker {
             editor.putStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, linkedAccountEncryptedJsonSet);
             editor.commit();
         } catch (Exception e) {
-            throw new TradeItDeleteLinkedAccountException("Error deleting linkedAccount "+ linkedAccount.uUID, e);
+            throw new TradeItDeleteLinkedAccountException("Error deleting linkedAccount "+ linkedAccount.uuid, e);
         }
     }
 
