@@ -1,11 +1,11 @@
-#Android Trade.it API
+#Android Trade.it API Client
 Android library that wraps the Trade.it API using the [Retrofit 2](http://square.github.io/retrofit/) library.
 
 Detailed API documentation can be found here: https://www.trade.it/api.
 
-JCenter repo can be found here: https://bintray.com/tradeit/maven/tradeit-api/view
+The JCenter repo can be found here: https://bintray.com/tradeit/maven/tradeit-api/view
 
-For example usage, see the example app included with the library.
+For example usage, see the example app included with the library.  It is ready to build and load onto a device or the simulator and has basic functionality to link an account, authenticate, make a trade, and fetch account details like balances and positions.
 
 #Quick Start
 To link a user's account and to manage linked accounts, use the `TradeItAccountLinker`:
@@ -52,6 +52,33 @@ accountLinker.linkBrokerAccount(linkAccountRequest, new Callback<TradeItLinkAcco
     }
   }
 });
+```
+Initialize the keystore in order to save/update/load/delete previous linked accounts in the device:
+```
+TradeItAccountLinker.initKeyStore(context); 
+```
+Save a new linked account:
+```
+TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
+TradeItAccountLinker.saveLinkedAccount(context, linkedAccount, "MyAccount1");
+```
+Update a stored linked account:
+```
+TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
+TradeItAccountLinker.updateLinkedAccount(context, linkedAccount);
+```
+Get the stored linked accounts:
+```
+List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
+```
+Delete a stored linked account:
+```
+TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
+TradeItAccountLinker.deleteLinkedAccount(context, linkedAccount);
+```
+Delete all stored linked accounts:
+```
+TradeItAccountLinker.deleteAllLinkedAccount(context);
 ```
 Authenticate a user session and get the user's accounts with the broker:
 ```
