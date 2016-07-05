@@ -238,7 +238,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         appendInternalOperation("SAVING LINKED ACCOUNT...");
         try {
             TradeItAccountLinker.saveLinkedAccount(context, linkedAccount, "labelGivenByTheUser");
-            appendSimpleMessage("account saved, uUID: " + linkedAccount.uUID);
+            appendSimpleMessage("account saved, uuid: " + linkedAccount.uuid);
         }
         catch (TradeItSaveLinkedAccountException e) {
             appendError(e);
@@ -259,7 +259,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     private void updateLink(final TradeItLinkedAccount linkedAccount) {
         linkedAccount.label = "updateLabel";
         try {
-            appendInternalOperation("UPDATING LINKED ACCOUNT " + linkedAccount.uUID + " WITH A NEW LABEL: "+ linkedAccount.label);
+            appendInternalOperation("UPDATING LINKED ACCOUNT " + linkedAccount.uuid + " WITH A NEW LABEL: "+ linkedAccount.label);
             TradeItAccountLinker.updateLinkedAccount(context, linkedAccount);
             List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
             appendSimpleMessage(tradeItLinkedAccountsList);
@@ -272,7 +272,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void deleteLink(final TradeItLinkedAccount linkedAccount) {
         try {
-            appendInternalOperation("DELETING LINKED ACCOUNT " + linkedAccount.uUID);
+            appendInternalOperation("DELETING LINKED ACCOUNT " + linkedAccount.uuid);
             TradeItAccountLinker.deleteLinkedAccount(context, linkedAccount);
             appendInternalOperation("ARE THERE ANY LINKED ACCOUNTS ANYMORE ? ...");
             List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);

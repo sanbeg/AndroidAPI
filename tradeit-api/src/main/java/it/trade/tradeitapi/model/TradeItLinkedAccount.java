@@ -21,8 +21,8 @@ public class TradeItLinkedAccount {
     @SerializedName("apiKey")
     public String apiKey = "";
 
-    @SerializedName("uUID")
-    public String uUID = "";
+    @SerializedName("uuid")
+    public String uuid = "";
 
     public TradeItLinkedAccount(TradeItLinkAccountRequest linkAccountRequest, TradeItLinkAccountResponse linkAccountResponse) {
         this.broker = linkAccountRequest.broker;
@@ -48,7 +48,7 @@ public class TradeItLinkedAccount {
                 ", apiKey='" + apiKey + '\'' +
                 ", broker='" + broker + '\'' +
                 ", label='" + label + '\'' +
-                ", uUID='" + uUID + '\'' +
+                ", uuid='" + uuid + '\'' +
                 '}';
     }
 }
