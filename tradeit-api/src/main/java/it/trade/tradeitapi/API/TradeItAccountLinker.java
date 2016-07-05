@@ -163,7 +163,7 @@ public class TradeItAccountLinker {
         }
     }
 
-    public static void deleteAllLinkedAccount(Context context) throws TradeItDeleteLinkedAccountException {
+    public static void deleteAllLinkedAccounts(Context context) throws TradeItDeleteLinkedAccountException {
         try {
             SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
             Set<String> linkedAccountEncryptedJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_ACCOUNTS_KEY, new HashSet<String>());
