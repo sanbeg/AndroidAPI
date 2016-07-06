@@ -1,1 +1,1 @@
-include ':example', ':tradeit-api'
+include ':example', ':tradeit-android-api'
