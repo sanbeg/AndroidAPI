@@ -34,6 +34,15 @@ public class TradeItGetAllTransactionsHistoryResponse extends TradeItResponse {
         @SerializedName("type")
         @Expose
         public String type;
+        @SerializedName("price")
+        @Expose
+        public Double price;
+        @SerializedName("quantity")
+        @Expose
+        public Double quantity;
+        @SerializedName("commission")
+        @Expose
+        public Double commission;
 
         @Override
         public String toString() {
@@ -44,6 +53,9 @@ public class TradeItGetAllTransactionsHistoryResponse extends TradeItResponse {
                     ", amount=" + amount +
                     ", action='" + action + '\'' +
                     ", type='" + type + '\'' +
+                    ", price='" + price + '\'' +
+                    ", quantity='" + quantity + '\'' +
+                    ", commission='" + commission + '\'' +
                     '}';
         }
     }
