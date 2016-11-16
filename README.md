@@ -9,12 +9,12 @@ For example usage, see the example app included with the library.  It is ready t
 
 #Quick Start
 To link a user's account and to manage linked accounts, use the `TradeItAccountLinker`:
-```
+```Java
 // In order to initialize the account linker, obtain an API key from Trade.it, or test with "tradeit-test-api-key"
 TradeItAccountLinker accountLinker = new TradeItAccountLinker("tradeit-test-api-key", TradeItEnvironment.QA);
 ```
 Query which brokers are available for your key:
-```
+```Java
 accountLinker.getAvailableBrokers(new Callback<TradeItAvailableBrokersResponse>() {
   public void onResponse(Call<TradeItAvailableBrokersResponse> call, Response<TradeItAvailableBrokersResponse> response) {
     // Check that the http request was successful (status code 2XX) before proceeding
@@ -34,7 +34,7 @@ accountLinker.getAvailableBrokers(new Callback<TradeItAvailableBrokersResponse>(
 });
 ```
 Link (authorize) a user's account:
-```
+```Java
 // Create a request from the user's login credentials
 final TradeItLinkAccountRequest linkAccountRequest = new TradeItLinkAccountRequest("broker_account_username", "broker_account_password", "Fidelity");
 
@@ -54,34 +54,34 @@ accountLinker.linkBrokerAccount(linkAccountRequest, new Callback<TradeItLinkAcco
 });
 ```
 Initialize the keystore in order to save/update/load/delete previous linked accounts in the device:
-```
+```Java
 TradeItAccountLinker.initKeyStore(context); 
 ```
 Save a new linked account:
-```
+```Java
 TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
 TradeItAccountLinker.saveLinkedAccount(context, linkedAccount, "MyAccount1");
 ```
 Update a stored linked account:
-```
+```Java
 TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
 TradeItAccountLinker.updateLinkedAccount(context, linkedAccount);
 ```
 Get the stored linked accounts:
-```
+```Java
 List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
 ```
 Delete a stored linked account:
-```
+```Java
 TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
 TradeItAccountLinker.deleteLinkedAccount(context, linkedAccount);
 ```
 Delete all stored linked accounts:
-```
+```Java
 TradeItAccountLinker.deleteAllLinkedAccount(context);
 ```
 Authenticate a user session and get the user's accounts with the broker:
-```
+```Java
 // Initialize an instance of the API client from the TradeItLinkedAccount instance
 TradeItApiClient tradeItApiClient = new TradeItApiClient(linkedAccount);
 
@@ -102,7 +102,7 @@ tradeItApiClient.authenticate(new Callback<TradeItAuthenticateResponse>() {
 });
 ```
 Submit a trade to the broker for preview:
-```
+```Java
 TradeItPreviewStockOrEtfOrderRequest previewRequest = new TradeItPreviewStockOrEtfOrderRequest();
 previewRequest.accountNumber = authResponse.accounts.get(0).accountNumber;
 previewRequest.orderAction = "buy";
