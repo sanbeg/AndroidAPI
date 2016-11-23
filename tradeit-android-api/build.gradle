@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/tradingticket/AndroidAPI'
     gitUrl = 'https://github.com/tradingticket/AndroidAPI.git'
 
-    libraryVersion = '0.1.2'
+    libraryVersion = '0.1.4'
 
     developerId = 'tradingticket'
     developerName = 'Trade It'
