@@ -21,6 +21,8 @@ import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItLinkAccountRequest;
 import it.trade.tradeitapi.model.TradeItLinkAccountResponse;
 import it.trade.tradeitapi.model.TradeItLinkedAccount;
+import it.trade.tradeitapi.model.TradeItOAuthAccessTokenRequest;
+import it.trade.tradeitapi.model.TradeItOAuthAccessTokenResponse;
 import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForMobileRequest;
 import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForMobileResponse;
 import it.trade.tradeitapi.model.TradeItRelinkAccountRequest;
@@ -63,6 +65,11 @@ public class TradeItAccountLinker {
 
     public void getOAuthLoginPopupUrlForMobile(TradeItOAuthLoginPopupUrlForMobileRequest request, Callback<TradeItOAuthLoginPopupUrlForMobileResponse> callback) {
         tradeItAccountLinkApi.getOAuthLoginPopupUrlForMobile(request).enqueue(new PassthroughCallback<>(callback));
+    }
+
+    public void getOAuthAccessToken(TradeItOAuthAccessTokenRequest request, Callback<TradeItOAuthAccessTokenResponse> callback) {
+        request.environment = environment;
+        tradeItAccountLinkApi.getOAuthAccessToken(request).enqueue(new PassthroughCallback<>(callback));
     }
 
     public void linkBrokerAccount(TradeItLinkAccountRequest request, Callback<TradeItLinkAccountResponse> callback) {
