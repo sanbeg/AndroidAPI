@@ -32,6 +32,15 @@ public class TradeItLinkedAccount {
         this.userToken = linkAccountResponse.userToken;
     }
 
+    public TradeItLinkedAccount(String broker, TradeItOAuthAccessTokenRequest oAuthAccessTokenRequest,
+                                TradeItOAuthAccessTokenResponse oAuthAccessTokenResponse) {
+        this.broker = broker;
+        this.apiKey = oAuthAccessTokenRequest.apiKey;
+        this.environment = oAuthAccessTokenRequest.environment;
+        this.userId = oAuthAccessTokenResponse.userId;
+        this.userToken = oAuthAccessTokenResponse.userToken;
+    }
+
     private TradeItLinkedAccount() {}
 
     public void update(TradeItLinkAccountResponse linkAccountResponse) {
