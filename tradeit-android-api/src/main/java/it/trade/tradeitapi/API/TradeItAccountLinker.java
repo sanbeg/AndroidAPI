@@ -55,6 +55,10 @@ public class TradeItAccountLinker {
         this.tradeItAccountLinkApi = retrofit.create(TradeItAccountLinkApi.class);
     }
 
+    public TradeItEnvironment getTradeItEnvironment() {
+        return this.environment;
+    }
+
     private TradeItAccountLinker() {
     }
 

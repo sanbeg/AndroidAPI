@@ -54,6 +54,10 @@ public class TradeItApiClient {
         request.sessionToken = sessionToken;
     }
 
+    public TradeItLinkedAccount getTradeItLinkedAccount() {
+        return this.tradeItLinkedAccount;
+    }
+
     public void authenticate(final Callback<TradeItAuthenticateResponse> callback) {
         if (serverUuid == null) {
             serverUuid = UUID.randomUUID().toString();
