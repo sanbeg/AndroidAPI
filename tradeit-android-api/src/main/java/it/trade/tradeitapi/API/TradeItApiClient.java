@@ -58,6 +58,10 @@ public class TradeItApiClient {
         return this.tradeItLinkedAccount;
     }
 
+    public void setTradeItLinkedAccount(TradeItLinkedAccount tradeItLinkedAccount) {
+        this.tradeItLinkedAccount = tradeItLinkedAccount;
+    }
+
     public void authenticate(final Callback<TradeItAuthenticateResponse> callback) {
         if (serverUuid == null) {
             serverUuid = UUID.randomUUID().toString();
@@ -70,7 +74,7 @@ public class TradeItApiClient {
             public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
                 if (response.isSuccessful()) {
                     TradeItAuthenticateResponse authenticateResponse = response.body();
-                    if (authenticateResponse.status == TradeItResponseStatus.SUCCESS) {
+                    if (authenticateResponse.status == TradeItResponseStatus.SUCCESS || authenticateResponse.status == TradeItResponseStatus.INFORMATION_NEEDED) {
                         sessionToken = authenticateResponse.sessionToken;
                     }
                 }

@@ -25,6 +25,8 @@ import it.trade.tradeitapi.model.TradeItOAuthAccessTokenRequest;
 import it.trade.tradeitapi.model.TradeItOAuthAccessTokenResponse;
 import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForMobileRequest;
 import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForMobileResponse;
+import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForTokenUpdateRequest;
+import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForTokenUpdateResponse;
 import it.trade.tradeitapi.model.TradeItRelinkAccountRequest;
 import it.trade.tradeitapi.model.TradeItRequestWithKey;
 import it.trade.tradeitapi.model.TradeItResponse;
@@ -38,7 +40,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TradeItAccountLinker {
     private static final String TRADE_IT_LINKED_ACCOUNTS_ALIAS = "TRADE_IT_LINKED_ACCOUNTS_ALIAS";
-    private static final String TRADE_IT_SHARED_PREFS_KEY = "TRADE_IT_SHARED_PREFS_KEY";
+    public static final String TRADE_IT_SHARED_PREFS_KEY = "TRADE_IT_SHARED_PREFS_KEY";
     private static final String TRADE_IT_LINKED_ACCOUNTS_KEY = "TRADE_IT_LINKED_ACCOUNTS_KEY";
     private TradeItAccountLinkApi tradeItAccountLinkApi;
     private TradeItEnvironment environment;
@@ -69,6 +71,10 @@ public class TradeItAccountLinker {
 
     public void getOAuthLoginPopupUrlForMobile(TradeItOAuthLoginPopupUrlForMobileRequest request, Callback<TradeItOAuthLoginPopupUrlForMobileResponse> callback) {
         tradeItAccountLinkApi.getOAuthLoginPopupUrlForMobile(request).enqueue(new PassthroughCallback<>(callback));
+    }
+
+    public void getOAuthLoginPopupUrlForTokenUpdate(TradeItOAuthLoginPopupUrlForTokenUpdateRequest request, Callback<TradeItOAuthLoginPopupUrlForTokenUpdateResponse> callback) {
+        tradeItAccountLinkApi.getOAuthLoginPopupURLForTokenUpdate(request).enqueue(new PassthroughCallback<>(callback));
     }
 
     public void getOAuthAccessToken(TradeItOAuthAccessTokenRequest request, Callback<TradeItOAuthAccessTokenResponse> callback) {
