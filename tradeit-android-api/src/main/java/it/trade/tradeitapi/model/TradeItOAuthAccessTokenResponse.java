@@ -1,4 +1,4 @@
 package it.trade.tradeitapi.model;
 
-public class TradeItOAuthAccessTokenResponse extends TradeItLinkAccountResponse{
+public class TradeItOAuthAccessTokenResponse extends TradeItLinkLoginResponse {
 }

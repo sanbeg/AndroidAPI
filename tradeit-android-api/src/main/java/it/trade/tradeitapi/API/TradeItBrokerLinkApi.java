@@ -1,7 +1,7 @@
 package it.trade.tradeitapi.API;
 
-import it.trade.tradeitapi.model.TradeItLinkAccountRequest;
-import it.trade.tradeitapi.model.TradeItLinkAccountResponse;
+import it.trade.tradeitapi.model.TradeItLinkLoginRequest;
+import it.trade.tradeitapi.model.TradeItLinkLoginResponse;
 import it.trade.tradeitapi.model.TradeItAvailableBrokersResponse;
 import it.trade.tradeitapi.model.TradeItOAuthAccessTokenRequest;
 import it.trade.tradeitapi.model.TradeItOAuthAccessTokenResponse;
@@ -9,15 +9,15 @@ import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForMobileRequest;
 import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForMobileResponse;
 import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForTokenUpdateRequest;
 import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForTokenUpdateResponse;
-import it.trade.tradeitapi.model.TradeItRelinkAccountRequest;
+import it.trade.tradeitapi.model.TradeItRelinkLoginRequest;
 import it.trade.tradeitapi.model.TradeItRequestWithKey;
 import it.trade.tradeitapi.model.TradeItResponse;
-import it.trade.tradeitapi.model.TradeItUnlinkAccountRequest;
+import it.trade.tradeitapi.model.TradeItUnlinkLoginRequest;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
-public interface TradeItAccountLinkApi {
+public interface TradeItBrokerLinkApi {
     @POST("/api/v1/user/getOAuthLoginPopupUrlForMobile")
     Call<TradeItOAuthLoginPopupUrlForMobileResponse> getOAuthLoginPopupUrlForMobile(@Body TradeItOAuthLoginPopupUrlForMobileRequest request);
 
@@ -28,14 +28,14 @@ public interface TradeItAccountLinkApi {
     Call<TradeItOAuthAccessTokenResponse> getOAuthAccessToken(@Body TradeItOAuthAccessTokenRequest request);
 
     @POST("/api/v1/user/oAuthLink")
-    Call<TradeItLinkAccountResponse> linkAccount(@Body TradeItLinkAccountRequest request);
+    Call<TradeItLinkLoginResponse> linkLogin(@Body TradeItLinkLoginRequest request);
 
     @POST("/api/v1/user/oAuthUpdate")
-    Call<TradeItLinkAccountResponse> relinkAccount(@Body TradeItRelinkAccountRequest request);
+    Call<TradeItLinkLoginResponse> relinkLogin(@Body TradeItRelinkLoginRequest request);
 
     @POST("/api/v1/preference/getStocksOrEtfsBrokerList")
     Call<TradeItAvailableBrokersResponse> getAvailableBrokers(@Body TradeItRequestWithKey request);
 
     @POST("/api/v1/user/oAuthDelete")
-    Call<TradeItResponse> unlinkAccount(@Body TradeItUnlinkAccountRequest request);
+    Call<TradeItResponse> unlinkLogin(@Body TradeItUnlinkLoginRequest request);
 }

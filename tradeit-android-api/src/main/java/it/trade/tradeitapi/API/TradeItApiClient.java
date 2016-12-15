@@ -14,7 +14,7 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
 import it.trade.tradeitapi.model.TradeItGetSingleOrderStatusRequest;
-import it.trade.tradeitapi.model.TradeItLinkedAccount;
+import it.trade.tradeitapi.model.TradeItLinkedLogin;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderResponse;
@@ -33,15 +33,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class TradeItApiClient {
     private TradeItApi tradeItApi;
     private String serverUuid;
-    private TradeItLinkedAccount tradeItLinkedAccount;
+    private TradeItLinkedLogin tradeItLinkedLogin;
     private String sessionToken;
 
-    public TradeItApiClient(TradeItLinkedAccount tradeItLinkedAccount) {
-        this.tradeItLinkedAccount = tradeItLinkedAccount;
-        TradeItRequestWithKey.API_KEY = tradeItLinkedAccount.apiKey;
+    public TradeItApiClient(TradeItLinkedLogin tradeItLinkedLogin) {
+        this.tradeItLinkedLogin = tradeItLinkedLogin;
+        TradeItRequestWithKey.API_KEY = tradeItLinkedLogin.apiKey;
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(tradeItLinkedAccount.environment.getBaseUrl())
+                .baseUrl(tradeItLinkedLogin.environment.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -54,12 +54,12 @@ public class TradeItApiClient {
         request.sessionToken = sessionToken;
     }
 
-    public TradeItLinkedAccount getTradeItLinkedAccount() {
-        return this.tradeItLinkedAccount;
+    public TradeItLinkedLogin getTradeItLinkedLogin() {
+        return this.tradeItLinkedLogin;
     }
 
-    public void setTradeItLinkedAccount(TradeItLinkedAccount tradeItLinkedAccount) {
-        this.tradeItLinkedAccount = tradeItLinkedAccount;
+    public void setTradeItLinkedLogin(TradeItLinkedLogin tradeItLinkedLogin) {
+        this.tradeItLinkedLogin = tradeItLinkedLogin;
     }
 
     public void authenticate(final Callback<TradeItAuthenticateResponse> callback) {
@@ -67,7 +67,7 @@ public class TradeItApiClient {
             serverUuid = UUID.randomUUID().toString();
         }
 
-        TradeItAuthenticateRequest authenticateRequest = new TradeItAuthenticateRequest(tradeItLinkedAccount);
+        TradeItAuthenticateRequest authenticateRequest = new TradeItAuthenticateRequest(tradeItLinkedLogin);
         authenticateRequest.serverUuid = serverUuid;
 
         tradeItApi.authenticate(authenticateRequest).enqueue(new Callback<TradeItAuthenticateResponse>() {

@@ -5,24 +5,24 @@ Detailed API documentation can be found here: https://www.trade.it/api.
 
 The JCenter repo can be found here: https://bintray.com/tradeit/maven/tradeit-android-api/view
 
-For example usage, see the example app included with the library.  It is ready to build and load onto a device or the simulator and has basic functionality to link an account, authenticate, make a trade, and fetch account details like balances and positions.
+For example usage, see the example app included with the library.  It is ready to build and load onto a device or the simulator and has basic functionality to link a broker account, authenticate, make a trade, and fetch account details like balances and positions.
 
 #Quick Start
-To link a user's account and to manage linked accounts, use the `TradeItAccountLinker`:
+To link a user's broker account and to manage linked logins, use the `TradeItBrokerLinker`:
 ```Java
 // In order to initialize the account linker, obtain an API key from Trade.it, or test with "tradeit-test-api-key"
-TradeItAccountLinker accountLinker = new TradeItAccountLinker("tradeit-test-api-key", TradeItEnvironment.QA);
+TradeItBrokerLinker brokerLinker = new TradeItBrokerLinker("tradeit-test-api-key", TradeItEnvironment.QA);
 ```
 Query which brokers are available for your key:
 ```Java
-accountLinker.getAvailableBrokers(new Callback<TradeItAvailableBrokersResponse>() {
+brokerLinker.getAvailableBrokers(new Callback<TradeItAvailableBrokersResponse>() {
   public void onResponse(Call<TradeItAvailableBrokersResponse> call, Response<TradeItAvailableBrokersResponse> response) {
     // Check that the http request was successful (status code 2XX) before proceeding
     if (response.isSuccessful()) {
       TradeItAvailableBrokersResponse brokersResponse = response.body();
 
       // Check the status of the API response
-      if (linkAccountResponse.status == TradeItResponseStatus.SUCCESS) {
+      if (linkLoginResponse.status == TradeItResponseStatus.SUCCESS) {
         // Let user choose a broker based on the the brokers in brokersResponse.brokerList
       }
     } else { // Server returned non-2XX status (e.g. 404, 503, etc.) }
@@ -33,57 +33,57 @@ accountLinker.getAvailableBrokers(new Callback<TradeItAvailableBrokersResponse>(
   }
 });
 ```
-Link (authorize) a user's account:
+Link (authorize) a user's broker account:
 ```Java
 // Create a request from the user's login credentials
-final TradeItLinkAccountRequest linkAccountRequest = new TradeItLinkAccountRequest("broker_account_username", "broker_account_password", "Fidelity");
+final TradeItLinkLoginRequest linkLoginRequest = new TradeItLinkLoginRequest("broker_account_username", "broker_account_password", "Fidelity");
 
-accountLinker.linkBrokerAccount(linkAccountRequest, new Callback<TradeItLinkAccountResponse>() {
-  public void onResponse(Call<TradeItLinkAccountResponse> call, Response<TradeItLinkAccountResponse> response) {
+brokerLinker.linkBrokerAccount(linkLoginRequest, new Callback<TradeItLinkLoginResponse>() {
+  public void onResponse(Call<TradeItLinkLoginResponse> call, Response<TradeItLinkLoginResponse> response) {
     if (response.isSuccessful()) {
-      TradeItLinkAccountResponse linkAccountResponse = response.body();
+      TradeItLinkLoginResponse linkLoginResponse = response.body();
 
-      if (linkAccountResponse.status == TradeItResponseStatus.SUCCESS) {
-        // The user's linked account is encapsulated in a TradeItLinkedAccount object.
-        // This object is initialized from a TradeItLinkAccountRequest and the corresponding successful TradeItLinkAccountResponse.
-        // TradeItLinkedAccount is annotated for gson serialization so that it can be saved on a device for ongoing use.
-        TradeItLinkedAccount linkedAccount = new TradeItLinkedAccount(linkAccountRequest, linkAccountResponse);
+      if (linkLoginResponse.status == TradeItResponseStatus.SUCCESS) {
+        // The user's linked login is encapsulated in a TradeItLinkedLogin object.
+        // This object is initialized from a TradeItLinkLoginRequest and the corresponding successful TradeItLinkLoginResponse.
+        // TradeItLinkedLogin is annotated for gson serialization so that it can be saved on a device for ongoing use.
+        TradeItLinkedLogin linkedLogin = new TradeItLinkedLogin(linkLoginRequest, linkLoginResponse);
       }
     }
   }
 });
 ```
-Initialize the keystore in order to save/update/load/delete previous linked accounts in the device:
+Initialize the keystore in order to save/update/load/delete previous linked logins in the device:
 ```Java
-TradeItAccountLinker.initKeyStore(context); 
+TradeItBrokerLinker.initKeyStore(context); 
 ```
-Save a new linked account:
+Save a new linked login:
 ```Java
-TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
-TradeItAccountLinker.saveLinkedAccount(context, linkedAccount, "MyAccount1");
+TradeItLinkedLogin linkedLogin = ... // previous linkedLogin
+TradeItBrokerLinker.saveLinkedLogin(context, linkedLogin, "MyAccount1");
 ```
-Update a stored linked account:
+Update a stored linked login:
 ```Java
-TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
-TradeItAccountLinker.updateLinkedAccount(context, linkedAccount);
+TradeItLinkedLogin linkedLogin = ... // previous linkedLogin
+TradeItBrokerLinker.updateLinkedLogin(context, linkedLogin);
 ```
-Get the stored linked accounts:
+Get the stored linked logins:
 ```Java
-List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
+List<TradeItLinkedLogin> tradeItLinkedLoginsList =  TradeItBrokerLinker.getLinkedLogins(context);
 ```
-Delete a stored linked account:
+Delete a stored linked login:
 ```Java
-TradeItLinkedAccount linkedAccount = ... // previous linkedAccount
-TradeItAccountLinker.deleteLinkedAccount(context, linkedAccount);
+TradeItLinkedLogin linkedLogin = ... // previous linkedLogin
+TradeItBrokerLinker.deleteLinkedLogin(context, linkedLogin);
 ```
-Delete all stored linked accounts:
+Delete all stored linked logins:
 ```Java
-TradeItAccountLinker.deleteAllLinkedAccount(context);
+TradeItBrokerLinker.deleteAllLinkedLogin(context);
 ```
 Authenticate a user session and get the user's accounts with the broker:
 ```Java
-// Initialize an instance of the API client from the TradeItLinkedAccount instance
-TradeItApiClient tradeItApiClient = new TradeItApiClient(linkedAccount);
+// Initialize an instance of the API client from the TradeItLinkedLogin instance
+TradeItApiClient tradeItApiClient = new TradeItApiClient(linkedLogin);
 
 tradeItApiClient.authenticate(new Callback<TradeItAuthenticateResponse>() {
   public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
