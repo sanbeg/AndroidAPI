@@ -57,10 +57,6 @@ public class TradeItBrokerLinker {
         this.tradeItBrokerLinkApi = retrofit.create(TradeItBrokerLinkApi.class);
     }
 
-    public TradeItEnvironment getTradeItEnvironment() {
-        return this.environment;
-    }
-
     private TradeItBrokerLinker() {
     }
 

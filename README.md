@@ -10,7 +10,7 @@ For example usage, see the example app included with the library.  It is ready t
 #Quick Start
 To link a user's broker account and to manage linked logins, use the `TradeItBrokerLinker`:
 ```Java
-// In order to initialize the account linker, obtain an API key from Trade.it, or test with "tradeit-test-api-key"
+// In order to initialize the broker linker, obtain an API key from Trade.it, or test with "tradeit-test-api-key"
 TradeItBrokerLinker brokerLinker = new TradeItBrokerLinker("tradeit-test-api-key", TradeItEnvironment.QA);
 ```
 Query which brokers are available for your key:
@@ -33,26 +33,59 @@ brokerLinker.getAvailableBrokers(new Callback<TradeItAvailableBrokersResponse>()
   }
 });
 ```
-Link (authorize) a user's broker account:
+Link (authorize) a user's broker account: There are several steps to follow:
 ```Java
-// Create a request from the user's login credentials
-final TradeItLinkLoginRequest linkLoginRequest = new TradeItLinkLoginRequest("broker_account_username", "broker_account_password", "Fidelity");
-
-brokerLinker.linkBrokerAccount(linkLoginRequest, new Callback<TradeItLinkLoginResponse>() {
-  public void onResponse(Call<TradeItLinkLoginResponse> call, Response<TradeItLinkLoginResponse> response) {
-    if (response.isSuccessful()) {
-      TradeItLinkLoginResponse linkLoginResponse = response.body();
-
-      if (linkLoginResponse.status == TradeItResponseStatus.SUCCESS) {
-        // The user's linked login is encapsulated in a TradeItLinkedLogin object.
-        // This object is initialized from a TradeItLinkLoginRequest and the corresponding successful TradeItLinkLoginResponse.
-        // TradeItLinkedLogin is annotated for gson serialization so that it can be saved on a device for ongoing use.
-        TradeItLinkedLogin linkedLogin = new TradeItLinkedLogin(linkLoginRequest, linkLoginResponse);
-      }
+// Create a request to get the Popup URL
+final TradeItOAuthLoginPopupUrlForMobileRequest request = new TradeItOAuthLoginPopupUrlForMobileRequest(broker, deepLinkCallback);
+brokerLinker.getOAuthLoginPopupUrlForMobile(request, new Callback<TradeItOAuthLoginPopupUrlForMobileResponse>() {
+    public void onResponse(Call<TradeItOAuthLoginPopupUrlForMobileResponse> call, Response<TradeItOAuthLoginPopupUrlForMobileResponse> response) {
+        if (response.isSuccessful()) {
+              TradeItOAuthLoginPopupUrlForMobileResponse oAuthLoginPopupUrlForMobileResponse = response.body(); 
+              if (oAuthLoginPopupUrlForMobileResponse.status == TradeItResponseStatus.SUCCESS) {
+                // You have to redirect the user to this url
+                String oAuthURL = response.body().oAuthURL
+              }
+        } else { // Server returned non-2XX status (e.g. 404, 503, etc.) }
     }
-  }
+    
+    public void onFailure(Call call, Throwable t) {
+          // Something went wrong trying to send the request, check that the device is connected to the internet...
+    }
 });
 ```
+Once the user is authenticated via the popup, your deep link is called.
+You have to get the oAuthVerifier from your deep linking intent:
+```Java
+String oAuthVerifier = intent.getData().getQueryParameter("oAuthVerifier");
+```
+And the last step is to get the user oAuth token that is generated given credentials for a broker. 
+The token may be used to authenticate the user in the future without them having to re-enter their credentials. And because of this the userId/userToken should be handled like a username/password. 
+```Java
+final TradeItOAuthAccessTokenRequest request = new TradeItOAuthAccessTokenRequest(oAuthVerifier);
+brokerLinker.getOAuthAccessToken(request, new Callback<TradeItOAuthAccessTokenResponse>() {
+    public void onResponse(Call<TradeItOAuthAccessTokenResponse> call, Response<TradeItOAuthAccessTokenResponse> response) {
+        if (response.isSuccessful()) {
+              TradeItOAuthAccessTokenResponse oAuthAccessTokenResponse = response.body(); 
+              if (oAuthAccessTokenResponse.status == TradeItResponseStatus.SUCCESS) {
+                //saving the oAuth access token on the device (encrypted) to be used in the future
+                TradeItLinkedLogin linkedLogin = new TradeItLinkedLogin(broker, request, oAuthAccessTokenResponse);
+                try {
+                    TradeItAccountLinker.saveLinkedLogin(context, linkedLogin, "My account label");
+                } catch(TradeItSaveLinkedLoginException e) {
+                    //handle the exception
+                }
+                
+              }
+        } else { // Server returned non-2XX status (e.g. 404, 503, etc.) }
+    }
+        
+    public void onFailure(Call call, Throwable t) {
+          // Something went wrong trying to send the request, check that the device is connected to the internet...
+    }
+});
+```
+A word about the storage of the TradeItLinkedLogin:
+
 Initialize the keystore in order to save/update/load/delete previous linked logins in the device:
 ```Java
 TradeItBrokerLinker.initKeyStore(context); 
@@ -80,7 +113,7 @@ Delete all stored linked logins:
 ```Java
 TradeItBrokerLinker.deleteAllLinkedLogin(context);
 ```
-Authenticate a user session and get the user's accounts with the broker:
+Authenticate a user session thanks to the linkedLogin and get the user's accounts with the broker:
 ```Java
 // Initialize an instance of the API client from the TradeItLinkedLogin instance
 TradeItApiClient tradeItApiClient = new TradeItApiClient(linkedLogin);
