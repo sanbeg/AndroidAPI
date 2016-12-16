@@ -75,10 +75,18 @@ public class TradeItBrokerLinker {
         tradeItBrokerLinkApi.getOAuthAccessToken(request).enqueue(new PassthroughCallback<>(callback));
     }
 
+    /**
+     * @deprecated Use the new OAuth flow and the {@link #getOAuthLoginPopupUrlForMobile(TradeItOAuthLoginPopupUrlForMobileRequest, Callback<TradeItOAuthLoginPopupUrlForMobileResponse>)}, {@link #getOAuthAccessToken(TradeItOAuthAccessTokenRequest, Callback<TradeItOAuthAccessTokenResponse>)} method instead
+     */
+    @Deprecated
     public void linkBrokerAccount(TradeItLinkLoginRequest request, Callback<TradeItLinkLoginResponse> callback) {
         tradeItBrokerLinkApi.linkLogin(request).enqueue(new PassthroughCallback<>(callback));
     }
 
+    /**
+     * @deprecated Use the new OAuth flow and the {@link #getOAuthLoginPopupUrlForTokenUpdate(TradeItOAuthLoginPopupUrlForTokenUpdateRequest, Callback<TradeItOAuthLoginPopupUrlForTokenUpdateResponse>)}, {@link #getOAuthAccessToken(TradeItOAuthAccessTokenRequest, Callback<TradeItOAuthAccessTokenResponse>)} method instead
+     */
+    @Deprecated
     public void relinkBrokerAccount(TradeItRelinkLoginRequest request, Callback<TradeItLinkLoginResponse> callback) {
         tradeItBrokerLinkApi.relinkLogin(request).enqueue(new PassthroughCallback<>(callback));
     }
