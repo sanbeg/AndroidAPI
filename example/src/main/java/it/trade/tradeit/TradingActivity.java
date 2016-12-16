@@ -50,7 +50,7 @@ import retrofit2.Response;
 
 public class TradingActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     private static final String API_KEY = "tradeit-test-api-key";
-
+    private static final TradeItEnvironment TRADE_IT_ENVIRONMENT = TradeItEnvironment.QA;
     TextView outputTextView;
     Button tradeButton;
     Button clearButton;
@@ -102,7 +102,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         actionSpinner.setAdapter(adapter);
 
-        brokerLinker = new TradeItBrokerLinker(API_KEY, TradeItEnvironment.QA);
+        brokerLinker = new TradeItBrokerLinker(API_KEY, TRADE_IT_ENVIRONMENT);
 
         context = getApplication();
 
@@ -285,7 +285,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
     private void auth(TradeItLinkedLogin linkedLogin) {
-        tradeItApiClient = new TradeItApiClient(linkedLogin);
+        tradeItApiClient = new TradeItApiClient(linkedLogin, TRADE_IT_ENVIRONMENT);
 
         appendRequest("AUTHENTICATING...");
         tradeItApiClient.authenticate(new CallbackWithError<TradeItAuthenticateResponse>() {

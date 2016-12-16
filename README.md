@@ -116,7 +116,7 @@ TradeItBrokerLinker.deleteAllLinkedLogin(context);
 Authenticate a user session thanks to the linkedLogin and get the user's accounts with the broker:
 ```Java
 // Initialize an instance of the API client from the TradeItLinkedLogin instance
-TradeItApiClient tradeItApiClient = new TradeItApiClient(linkedLogin);
+TradeItApiClient tradeItApiClient = new TradeItApiClient(linkedLogin, TradeItEnvironment.QA);
 
 tradeItApiClient.authenticate(new Callback<TradeItAuthenticateResponse>() {
   public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {

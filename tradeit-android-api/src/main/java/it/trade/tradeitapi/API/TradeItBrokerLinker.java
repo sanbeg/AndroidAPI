@@ -43,12 +43,10 @@ public class TradeItBrokerLinker {
     public static final String TRADE_IT_SHARED_PREFS_KEY = "TRADE_IT_SHARED_PREFS_KEY";
     private static final String TRADE_IT_LINKED_BROKERS_KEY = "TRADE_IT_LINKED_BROKERS_KEY";
     private TradeItBrokerLinkApi tradeItBrokerLinkApi;
-    private TradeItEnvironment environment;
     private static TradeItKeystoreService tradeItKeystoreService = new TradeItKeystoreService(TRADE_IT_LINKED_BROKERS_ALIAS);
 
     public TradeItBrokerLinker(String apiKey, TradeItEnvironment environment) {
         TradeItRequestWithKey.API_KEY = apiKey;
-        this.environment = environment;
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(environment.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
@@ -74,12 +72,10 @@ public class TradeItBrokerLinker {
     }
 
     public void getOAuthAccessToken(TradeItOAuthAccessTokenRequest request, Callback<TradeItOAuthAccessTokenResponse> callback) {
-        request.environment = environment;
         tradeItBrokerLinkApi.getOAuthAccessToken(request).enqueue(new PassthroughCallback<>(callback));
     }
 
     public void linkBrokerAccount(TradeItLinkLoginRequest request, Callback<TradeItLinkLoginResponse> callback) {
-        request.environment = environment;
         tradeItBrokerLinkApi.linkLogin(request).enqueue(new PassthroughCallback<>(callback));
     }
 
