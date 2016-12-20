@@ -3,6 +3,10 @@ package it.trade.tradeitapi.API;
 import it.trade.tradeitapi.model.TradeItLinkAccountRequest;
 import it.trade.tradeitapi.model.TradeItLinkAccountResponse;
 import it.trade.tradeitapi.model.TradeItAvailableBrokersResponse;
+import it.trade.tradeitapi.model.TradeItOAuthAccessTokenRequest;
+import it.trade.tradeitapi.model.TradeItOAuthAccessTokenResponse;
+import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForMobileRequest;
+import it.trade.tradeitapi.model.TradeItOAuthLoginPopupUrlForMobileResponse;
 import it.trade.tradeitapi.model.TradeItRelinkAccountRequest;
 import it.trade.tradeitapi.model.TradeItRequestWithKey;
 import it.trade.tradeitapi.model.TradeItResponse;
@@ -12,6 +16,12 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface TradeItAccountLinkApi {
+    @POST("/api/v1/user/getOAuthLoginPopupUrlForMobile")
+    Call<TradeItOAuthLoginPopupUrlForMobileResponse> getOAuthLoginPopupUrlForMobile(@Body TradeItOAuthLoginPopupUrlForMobileRequest request);
+
+    @POST("/api/v1/user/getOAuthAccessToken")
+    Call<TradeItOAuthAccessTokenResponse> getOAuthAccessToken(@Body TradeItOAuthAccessTokenRequest request);
+
     @POST("/api/v1/user/oAuthLink")
     Call<TradeItLinkAccountResponse> linkAccount(@Body TradeItLinkAccountRequest request);
 

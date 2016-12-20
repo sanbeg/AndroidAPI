@@ -20,11 +20,16 @@ public class TradeItAuthenticateResponse extends TradeItResponse {
         @Expose
         public String name;
 
+        @SerializedName("accountBaseCurrency")
+        @Expose
+        public String accountBaseCurrency;
+
         @Override
         public String toString() {
             return "Account{" +
                     "accountNumber='" + accountNumber + '\'' +
                     ", name='" + name + '\'' +
+                    ", accountBaseCurrency='" + accountBaseCurrency + '\'' +
                     '}';
         }
     }
