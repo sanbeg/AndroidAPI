@@ -76,7 +76,7 @@ public class TradeItBrokerLinker {
     }
 
     /**
-     * @deprecated Use the new OAuth flow and the {@link #getOAuthLoginPopupUrlForMobile(TradeItOAuthLoginPopupUrlForMobileRequest, Callback<TradeItOAuthLoginPopupUrlForMobileResponse>)}, {@link #getOAuthAccessToken(TradeItOAuthAccessTokenRequest, Callback<TradeItOAuthAccessTokenResponse>)} method instead
+     * @deprecated Use the new OAuth flow and the @see #getOAuthLoginPopupUrlForMobile(TradeItOAuthLoginPopupUrlForMobileRequest, Callback),@see #getOAuthAccessToken(TradeItOAuthAccessTokenRequest, Callback) method instead
      */
     @Deprecated
     public void linkBrokerAccount(TradeItLinkLoginRequest request, Callback<TradeItLinkLoginResponse> callback) {
@@ -84,7 +84,7 @@ public class TradeItBrokerLinker {
     }
 
     /**
-     * @deprecated Use the new OAuth flow and the {@link #getOAuthLoginPopupUrlForTokenUpdate(TradeItOAuthLoginPopupUrlForTokenUpdateRequest, Callback<TradeItOAuthLoginPopupUrlForTokenUpdateResponse>)}, {@link #getOAuthAccessToken(TradeItOAuthAccessTokenRequest, Callback<TradeItOAuthAccessTokenResponse>)} method instead
+     * @deprecated Use the new OAuth flow and the @see #getOAuthLoginPopupUrlForTokenUpdate(TradeItOAuthLoginPopupUrlForTokenUpdateRequest, Callback), @see #getOAuthAccessToken(TradeItOAuthAccessTokenRequest, Callback) method instead
      */
     @Deprecated
     public void relinkBrokerAccount(TradeItRelinkLoginRequest request, Callback<TradeItLinkLoginResponse> callback) {
