@@ -6,6 +6,7 @@ import it.trade.tradeitapi.model.TradeItAnswerSecurityQuestionRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
 import it.trade.tradeitapi.model.TradeItCancelOrderRequest;
+import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewResponse;
 import it.trade.tradeitapi.model.TradeItGetAllOrderStatusRequest;
@@ -14,7 +15,7 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
 import it.trade.tradeitapi.model.TradeItGetSingleOrderStatusRequest;
-import it.trade.tradeitapi.model.TradeItLinkedAccount;
+import it.trade.tradeitapi.model.TradeItLinkedLogin;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderResponse;
@@ -33,15 +34,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class TradeItApiClient {
     private TradeItApi tradeItApi;
     private String serverUuid;
-    private TradeItLinkedAccount tradeItLinkedAccount;
+    private TradeItLinkedLogin tradeItLinkedLogin;
     private String sessionToken;
 
-    public TradeItApiClient(TradeItLinkedAccount tradeItLinkedAccount) {
-        this.tradeItLinkedAccount = tradeItLinkedAccount;
-        TradeItRequestWithKey.API_KEY = tradeItLinkedAccount.apiKey;
+    public TradeItApiClient(TradeItLinkedLogin tradeItLinkedLogin, TradeItEnvironment environment) {
+        this.tradeItLinkedLogin = tradeItLinkedLogin;
+        TradeItRequestWithKey.API_KEY = tradeItLinkedLogin.apiKey;
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(tradeItLinkedAccount.environment.getBaseUrl())
+                .baseUrl(environment.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -54,19 +55,27 @@ public class TradeItApiClient {
         request.sessionToken = sessionToken;
     }
 
+    public TradeItLinkedLogin getTradeItLinkedLogin() {
+        return this.tradeItLinkedLogin;
+    }
+
+    public void setTradeItLinkedLogin(TradeItLinkedLogin tradeItLinkedLogin) {
+        this.tradeItLinkedLogin = tradeItLinkedLogin;
+    }
+
     public void authenticate(final Callback<TradeItAuthenticateResponse> callback) {
         if (serverUuid == null) {
             serverUuid = UUID.randomUUID().toString();
         }
 
-        TradeItAuthenticateRequest authenticateRequest = new TradeItAuthenticateRequest(tradeItLinkedAccount);
+        TradeItAuthenticateRequest authenticateRequest = new TradeItAuthenticateRequest(tradeItLinkedLogin);
         authenticateRequest.serverUuid = serverUuid;
 
         tradeItApi.authenticate(authenticateRequest).enqueue(new Callback<TradeItAuthenticateResponse>() {
             public void onResponse(Call<TradeItAuthenticateResponse> call, Response<TradeItAuthenticateResponse> response) {
                 if (response.isSuccessful()) {
                     TradeItAuthenticateResponse authenticateResponse = response.body();
-                    if (authenticateResponse.status == TradeItResponseStatus.SUCCESS) {
+                    if (authenticateResponse.status == TradeItResponseStatus.SUCCESS || authenticateResponse.status == TradeItResponseStatus.INFORMATION_NEEDED) {
                         sessionToken = authenticateResponse.sessionToken;
                     }
                 }

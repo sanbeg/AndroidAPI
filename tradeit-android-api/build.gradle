@@ -7,13 +7,12 @@ ext {
     publishedGroupId = 'it.trade.tradeit'
     libraryName = 'tradeit-android-api'
     artifact = 'tradeit-android-api'
-
     libraryDescription = 'An Android wrapper for the Trade.it API: https://www.trade.it/api'
 
     siteUrl = 'https://github.com/tradingticket/AndroidAPI'
     gitUrl = 'https://github.com/tradingticket/AndroidAPI.git'
 
-    libraryVersion = '0.1.4'
+    libraryVersion = '0.1.5-SNAPSHOT'
 
     developerId = 'tradingticket'
     developerName = 'Trade It'
@@ -32,7 +31,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
-        versionName "1.0"
+        versionName libraryVersion
     }
     buildTypes {
         release {

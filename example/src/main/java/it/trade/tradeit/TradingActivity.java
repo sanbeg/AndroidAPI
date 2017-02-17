@@ -15,13 +15,13 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import it.trade.tradeitapi.API.TradeItAccountLinker;
+import it.trade.tradeitapi.API.TradeItBrokerLinker;
 import it.trade.tradeitapi.API.TradeItApiClient;
-import it.trade.tradeitapi.exception.TradeItDeleteLinkedAccountException;
+import it.trade.tradeitapi.exception.TradeItDeleteLinkedLoginException;
 import it.trade.tradeitapi.exception.TradeItKeystoreServiceCreateKeyException;
-import it.trade.tradeitapi.exception.TradeItRetrieveLinkedAccountException;
-import it.trade.tradeitapi.exception.TradeItSaveLinkedAccountException;
-import it.trade.tradeitapi.exception.TradeItUpdateLinkedAccountException;
+import it.trade.tradeitapi.exception.TradeItRetrieveLinkedLoginException;
+import it.trade.tradeitapi.exception.TradeItSaveLinkedLoginException;
+import it.trade.tradeitapi.exception.TradeItUpdateLinkedLoginException;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
 import it.trade.tradeitapi.model.TradeItAvailableBrokersResponse;
 import it.trade.tradeitapi.model.TradeItEnvironment;
@@ -32,15 +32,15 @@ import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryRequest;
 import it.trade.tradeitapi.model.TradeItGetAllTransactionsHistoryResponse;
 import it.trade.tradeitapi.model.TradeItGetPositionsRequest;
 import it.trade.tradeitapi.model.TradeItGetPositionsResponse;
-import it.trade.tradeitapi.model.TradeItLinkAccountRequest;
-import it.trade.tradeitapi.model.TradeItLinkAccountResponse;
-import it.trade.tradeitapi.model.TradeItLinkedAccount;
+import it.trade.tradeitapi.model.TradeItLinkLoginRequest;
+import it.trade.tradeitapi.model.TradeItLinkLoginResponse;
+import it.trade.tradeitapi.model.TradeItLinkedLogin;
 import it.trade.tradeitapi.model.TradeItOrderStatusResponse;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPlaceStockOrEtfOrderResponse;
 import it.trade.tradeitapi.model.TradeItPreviewStockOrEtfOrderRequest;
 import it.trade.tradeitapi.model.TradeItPreviewStockOrEtfOrderResponse;
-import it.trade.tradeitapi.model.TradeItRelinkAccountRequest;
+import it.trade.tradeitapi.model.TradeItRelinkLoginRequest;
 import it.trade.tradeitapi.model.TradeItRequestWithSession;
 import it.trade.tradeitapi.model.TradeItResponse;
 import it.trade.tradeitapi.model.TradeItResponseStatus;
@@ -50,7 +50,7 @@ import retrofit2.Response;
 
 public class TradingActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     private static final String API_KEY = "tradeit-test-api-key";
-
+    private static final TradeItEnvironment TRADE_IT_ENVIRONMENT = TradeItEnvironment.QA;
     TextView outputTextView;
     Button tradeButton;
     Button clearButton;
@@ -60,7 +60,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     Spinner actionSpinner;
 
     TradeItApiClient tradeItApiClient;
-    TradeItAccountLinker accountLinker;
+    TradeItBrokerLinker brokerLinker;
 
     String selectedBroker;
     String selectedAction;
@@ -68,7 +68,7 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     Context context;
 
-    TradeItLinkedAccount linkedAccount;
+    TradeItLinkedLogin linkedLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,12 +102,12 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         actionSpinner.setAdapter(adapter);
 
-        accountLinker = new TradeItAccountLinker(API_KEY, TradeItEnvironment.QA);
+        brokerLinker = new TradeItBrokerLinker(API_KEY, TRADE_IT_ENVIRONMENT);
 
         context = getApplication();
 
         try {
-            TradeItAccountLinker.initKeyStore(context);
+            TradeItBrokerLinker.initKeyStore(context);
         } catch (TradeItKeystoreServiceCreateKeyException e) {
             appendError(e);
         }
@@ -185,26 +185,26 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void testAvailableBrokers() {
         appendRequest("GETTING AVAILABLE BROKERS...");
-        accountLinker.getAvailableBrokers(new CallbackWithSuccessAndError<TradeItAvailableBrokersResponse>());
+        brokerLinker.getAvailableBrokers(new CallbackWithSuccessAndError<TradeItAvailableBrokersResponse>());
     }
 
     private void link(String broker, final String username, final String password) {
-        final TradeItLinkAccountRequest linkAccountRequest = new TradeItLinkAccountRequest(username, password, broker);
-        appendRequest(linkAccountRequest);
+        final TradeItLinkLoginRequest linkLoginRequest = new TradeItLinkLoginRequest(username, password, broker);
+        appendRequest(linkLoginRequest);
 
-        accountLinker.linkBrokerAccount(linkAccountRequest, new CallbackWithError<TradeItLinkAccountResponse>() {
-            public void onResponse(Call<TradeItLinkAccountResponse> call, Response<TradeItLinkAccountResponse> response) {
+        brokerLinker.linkBrokerAccount(linkLoginRequest, new CallbackWithError<TradeItLinkLoginResponse>() {
+            public void onResponse(Call<TradeItLinkLoginResponse> call, Response<TradeItLinkLoginResponse> response) {
                 if (response.isSuccessful()) {
-                    TradeItLinkAccountResponse linkAccountResponse = response.body();
-                    appendResponse(linkAccountResponse);
+                    TradeItLinkLoginResponse linkLoginResponse = response.body();
+                    appendResponse(linkLoginResponse);
 
-                    if (linkAccountResponse.status == TradeItResponseStatus.SUCCESS) {
-                        linkedAccount = new TradeItLinkedAccount(linkAccountRequest, linkAccountResponse);
-                        relink(linkedAccount, username, password);
-                        saveLink(linkedAccount, username, password);
+                    if (linkLoginResponse.status == TradeItResponseStatus.SUCCESS) {
+                        linkedLogin = new TradeItLinkedLogin(linkLoginRequest, linkLoginResponse);
+                        relink(linkedLogin, username, password);
+                        saveLink(linkedLogin, username, password);
                         retrieveLinks();
-                        updateLink(linkedAccount);
-                        deleteLink(linkedAccount);
+                        updateLink(linkedLogin);
+                        deleteLink(linkedLogin);
                     }
                 } else {
                     appendResponse(response.raw());
@@ -213,19 +213,19 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
-    private void relink(final TradeItLinkedAccount linkedAccount, String username, String password) {
-        TradeItRelinkAccountRequest relinkAccountRequest = new TradeItRelinkAccountRequest(linkedAccount, username, password);
-        appendRequest(relinkAccountRequest);
+    private void relink(final TradeItLinkedLogin linkedLogin, String username, String password) {
+        TradeItRelinkLoginRequest relinkLoginRequest = new TradeItRelinkLoginRequest(linkedLogin, username, password);
+        appendRequest(relinkLoginRequest);
 
-        accountLinker.relinkBrokerAccount(relinkAccountRequest, new CallbackWithError<TradeItLinkAccountResponse>() {
-            public void onResponse(Call<TradeItLinkAccountResponse> call, Response<TradeItLinkAccountResponse> response) {
+        brokerLinker.relinkBrokerAccount(relinkLoginRequest, new CallbackWithError<TradeItLinkLoginResponse>() {
+            public void onResponse(Call<TradeItLinkLoginResponse> call, Response<TradeItLinkLoginResponse> response) {
                 if (response.isSuccessful()) {
-                    TradeItLinkAccountResponse authResponse = response.body();
+                    TradeItLinkLoginResponse authResponse = response.body();
                     appendResponse(authResponse);
 
                     if (authResponse.status == TradeItResponseStatus.SUCCESS) {
-                        linkedAccount.update(authResponse);
-                        auth(linkedAccount);
+                        linkedLogin.update(authResponse);
+                        auth(linkedLogin);
                     }
                 } else {
                     appendResponse(response.raw());
@@ -234,13 +234,13 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
-    private void saveLink(final TradeItLinkedAccount linkedAccount, String username, String password) {
+    private void saveLink(final TradeItLinkedLogin linkedLogin, String username, String password) {
         appendInternalOperation("SAVING LINKED ACCOUNT...");
         try {
-            TradeItAccountLinker.saveLinkedAccount(context, linkedAccount, "labelGivenByTheUser");
-            appendSimpleMessage("account saved, uuid: " + linkedAccount.uuid);
+            TradeItBrokerLinker.saveLinkedLogin(context, linkedLogin, "labelGivenByTheUser");
+            appendSimpleMessage("account saved, uuid: " + linkedLogin.uuid);
         }
-        catch (TradeItSaveLinkedAccountException e) {
+        catch (TradeItSaveLinkedLoginException e) {
             appendError(e);
         }
     }
@@ -248,44 +248,44 @@ public class TradingActivity extends AppCompatActivity implements View.OnClickLi
     private void retrieveLinks() {
         try {
             appendInternalOperation("RETRIEVING LINKED ACCOUNTS...");
-            List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
-            appendSimpleMessage(tradeItLinkedAccountsList);
+            List<TradeItLinkedLogin> tradeItLinkedLoginsList =  TradeItBrokerLinker.getLinkedLogins(context);
+            appendSimpleMessage(tradeItLinkedLoginsList);
         }
-        catch (TradeItRetrieveLinkedAccountException e) {
+        catch (TradeItRetrieveLinkedLoginException e) {
             appendError(e);
         }
     }
 
-    private void updateLink(final TradeItLinkedAccount linkedAccount) {
-        linkedAccount.label = "updateLabel";
+    private void updateLink(final TradeItLinkedLogin linkedLogin) {
+        linkedLogin.label = "updateLabel";
         try {
-            appendInternalOperation("UPDATING LINKED ACCOUNT " + linkedAccount.uuid + " WITH A NEW LABEL: "+ linkedAccount.label);
-            TradeItAccountLinker.updateLinkedAccount(context, linkedAccount);
-            List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
-            appendSimpleMessage(tradeItLinkedAccountsList);
-        } catch (TradeItUpdateLinkedAccountException e) {
+            appendInternalOperation("UPDATING LINKED ACCOUNT " + linkedLogin.uuid + " WITH A NEW LABEL: "+ linkedLogin.label);
+            TradeItBrokerLinker.updateLinkedLogin(context, linkedLogin);
+            List<TradeItLinkedLogin> tradeItLinkedLoginsList =  TradeItBrokerLinker.getLinkedLogins(context);
+            appendSimpleMessage(tradeItLinkedLoginsList);
+        } catch (TradeItUpdateLinkedLoginException e) {
             appendError(e);
-        } catch (TradeItRetrieveLinkedAccountException e) {
+        } catch (TradeItRetrieveLinkedLoginException e) {
             appendError(e);
         }
     }
 
-    private void deleteLink(final TradeItLinkedAccount linkedAccount) {
+    private void deleteLink(final TradeItLinkedLogin linkedLogin) {
         try {
-            appendInternalOperation("DELETING LINKED ACCOUNT " + linkedAccount.uuid);
-            TradeItAccountLinker.deleteLinkedAccount(context, linkedAccount);
+            appendInternalOperation("DELETING LINKED ACCOUNT " + linkedLogin.uuid);
+            TradeItBrokerLinker.deleteLinkedLogin(context, linkedLogin);
             appendInternalOperation("ARE THERE ANY LINKED ACCOUNTS ANYMORE ? ...");
-            List<TradeItLinkedAccount> tradeItLinkedAccountsList =  TradeItAccountLinker.getLinkedAccounts(context);
-            appendSimpleMessage(tradeItLinkedAccountsList.size() == 0 ? "NO!" : "Yes!: " + tradeItLinkedAccountsList);
+            List<TradeItLinkedLogin> tradeItLinkedLoginsList =  TradeItBrokerLinker.getLinkedLogins(context);
+            appendSimpleMessage(tradeItLinkedLoginsList.size() == 0 ? "NO!" : "Yes!: " + tradeItLinkedLoginsList);
         }
-        catch (TradeItRetrieveLinkedAccountException e) {
+        catch (TradeItRetrieveLinkedLoginException e) {
             appendError(e);
-        } catch (TradeItDeleteLinkedAccountException e) {
+        } catch (TradeItDeleteLinkedLoginException e) {
             appendError(e);
         }
     }
-    private void auth(TradeItLinkedAccount linkedAccount) {
-        tradeItApiClient = new TradeItApiClient(linkedAccount);
+    private void auth(TradeItLinkedLogin linkedLogin) {
+        tradeItApiClient = new TradeItApiClient(linkedLogin, TRADE_IT_ENVIRONMENT);
 
         appendRequest("AUTHENTICATING...");
         tradeItApiClient.authenticate(new CallbackWithError<TradeItAuthenticateResponse>() {

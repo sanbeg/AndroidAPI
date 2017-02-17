@@ -12,7 +12,7 @@ public enum TradeItErrorCode {
     400 Broker Account Error - User credentials are valid, but needs to take action on the brokers site (ie. sign exchange agreement, sign margin agreement)
     500 Params Error - Publisher should check the parameters being passed in
     600 Session Expired - Publisher should call authenticate again in order to generate a new session token
-    700 Token invalid or expired - Publisher should call relinkAccount in order to refresh the token
+    700 Token invalid or expired - Publisher should call relinkLogin in order to refresh the token
     */
 
     @SerializedName("100")
