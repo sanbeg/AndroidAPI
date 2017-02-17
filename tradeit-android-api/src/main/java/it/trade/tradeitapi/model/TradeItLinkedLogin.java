@@ -15,9 +15,6 @@ public class TradeItLinkedLogin {
     @SerializedName("userId")
     public String userId = "";
 
-    @SerializedName("environment")
-    public TradeItEnvironment environment;
-
     @SerializedName("apiKey")
     public String apiKey = "";
 
@@ -27,7 +24,6 @@ public class TradeItLinkedLogin {
     public TradeItLinkedLogin(TradeItLinkLoginRequest linkLoginRequest, TradeItLinkLoginResponse linkLoginResponse) {
         this.broker = linkLoginRequest.broker;
         this.apiKey = linkLoginRequest.apiKey;
-        this.environment = linkLoginRequest.environment;
         this.userId = linkLoginResponse.userId;
         this.userToken = linkLoginResponse.userToken;
     }
@@ -36,7 +32,6 @@ public class TradeItLinkedLogin {
                               TradeItOAuthAccessTokenResponse oAuthAccessTokenResponse) {
         this.broker = broker;
         this.apiKey = oAuthAccessTokenRequest.apiKey;
-        this.environment = oAuthAccessTokenRequest.environment;
         this.userId = oAuthAccessTokenResponse.userId;
         this.userToken = oAuthAccessTokenResponse.userToken;
     }
@@ -53,7 +48,6 @@ public class TradeItLinkedLogin {
         return "TradeItLinkedLogin{" +
                 "userToken='" + userToken + '\'' +
                 ", userId='" + userId + '\'' +
-                ", environment=" + environment +
                 ", apiKey='" + apiKey + '\'' +
                 ", broker='" + broker + '\'' +
                 ", label='" + label + '\'' +

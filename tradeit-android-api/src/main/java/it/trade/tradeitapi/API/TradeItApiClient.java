@@ -6,6 +6,7 @@ import it.trade.tradeitapi.model.TradeItAnswerSecurityQuestionRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateRequest;
 import it.trade.tradeitapi.model.TradeItAuthenticateResponse;
 import it.trade.tradeitapi.model.TradeItCancelOrderRequest;
+import it.trade.tradeitapi.model.TradeItEnvironment;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewRequest;
 import it.trade.tradeitapi.model.TradeItGetAccountOverviewResponse;
 import it.trade.tradeitapi.model.TradeItGetAllOrderStatusRequest;
@@ -36,12 +37,12 @@ public class TradeItApiClient {
     private TradeItLinkedLogin tradeItLinkedLogin;
     private String sessionToken;
 
-    public TradeItApiClient(TradeItLinkedLogin tradeItLinkedLogin) {
+    public TradeItApiClient(TradeItLinkedLogin tradeItLinkedLogin, TradeItEnvironment environment) {
         this.tradeItLinkedLogin = tradeItLinkedLogin;
         TradeItRequestWithKey.API_KEY = tradeItLinkedLogin.apiKey;
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(tradeItLinkedLogin.environment.getBaseUrl())
+                .baseUrl(environment.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

@@ -17,8 +17,6 @@ public class TradeItLinkLoginRequest extends TradeItRequestWithKey {
     @Expose
     public String broker;
 
-    public TradeItEnvironment environment;
-
     public TradeItLinkLoginRequest(String brokerLoginId, String password, String broker) {
         this.id = brokerLoginId;
         this.password = password;

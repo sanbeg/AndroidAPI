@@ -10,8 +10,6 @@ public class TradeItOAuthAccessTokenRequest extends TradeItRequestWithKey {
     @Expose
     public String oAuthVerifier;
 
-    public TradeItEnvironment environment;
-
     public TradeItOAuthAccessTokenRequest(String oAuthVerifier) {
         this.oAuthVerifier = oAuthVerifier;
     }
