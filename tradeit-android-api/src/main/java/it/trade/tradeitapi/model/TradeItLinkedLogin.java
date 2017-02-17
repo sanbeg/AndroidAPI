@@ -2,7 +2,7 @@ package it.trade.tradeitapi.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class TradeItLinkedAccount {
+public class TradeItLinkedLogin {
     @SerializedName("label")
     public String label = "";
 
@@ -24,16 +24,16 @@ public class TradeItLinkedAccount {
     @SerializedName("uuid")
     public String uuid = "";
 
-    public TradeItLinkedAccount(TradeItLinkAccountRequest linkAccountRequest, TradeItLinkAccountResponse linkAccountResponse) {
-        this.broker = linkAccountRequest.broker;
-        this.apiKey = linkAccountRequest.apiKey;
-        this.environment = linkAccountRequest.environment;
-        this.userId = linkAccountResponse.userId;
-        this.userToken = linkAccountResponse.userToken;
+    public TradeItLinkedLogin(TradeItLinkLoginRequest linkLoginRequest, TradeItLinkLoginResponse linkLoginResponse) {
+        this.broker = linkLoginRequest.broker;
+        this.apiKey = linkLoginRequest.apiKey;
+        this.environment = linkLoginRequest.environment;
+        this.userId = linkLoginResponse.userId;
+        this.userToken = linkLoginResponse.userToken;
     }
 
-    public TradeItLinkedAccount(String broker, TradeItOAuthAccessTokenRequest oAuthAccessTokenRequest,
-                                TradeItOAuthAccessTokenResponse oAuthAccessTokenResponse) {
+    public TradeItLinkedLogin(String broker, TradeItOAuthAccessTokenRequest oAuthAccessTokenRequest,
+                              TradeItOAuthAccessTokenResponse oAuthAccessTokenResponse) {
         this.broker = broker;
         this.apiKey = oAuthAccessTokenRequest.apiKey;
         this.environment = oAuthAccessTokenRequest.environment;
@@ -41,16 +41,16 @@ public class TradeItLinkedAccount {
         this.userToken = oAuthAccessTokenResponse.userToken;
     }
 
-    private TradeItLinkedAccount() {}
+    private TradeItLinkedLogin() {}
 
-    public void update(TradeItLinkAccountResponse linkAccountResponse) {
-        this.userId = linkAccountResponse.userId;
-        this.userToken = linkAccountResponse.userToken;
+    public void update(TradeItLinkLoginResponse linkLoginResponse) {
+        this.userId = linkLoginResponse.userId;
+        this.userToken = linkLoginResponse.userToken;
     }
 
     @Override
     public String toString() {
-        return "TradeItLinkedAccount{" +
+        return "TradeItLinkedLogin{" +
                 "userToken='" + userToken + '\'' +
                 ", userId='" + userId + '\'' +
                 ", environment=" + environment +
