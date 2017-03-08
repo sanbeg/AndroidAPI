@@ -11,29 +11,6 @@ public class TradeItAuthenticateResponse extends TradeItResponse {
     @Expose
     public List<Account> accounts = new ArrayList<Account>();
 
-    public class Account {
-        @SerializedName("accountNumber")
-        @Expose
-        public String accountNumber;
-
-        @SerializedName("name")
-        @Expose
-        public String name;
-
-        @SerializedName("accountBaseCurrency")
-        @Expose
-        public String accountBaseCurrency;
-
-        @Override
-        public String toString() {
-            return "Account{" +
-                    "accountNumber='" + accountNumber + '\'' +
-                    ", name='" + name + '\'' +
-                    ", accountBaseCurrency='" + accountBaseCurrency + '\'' +
-                    '}';
-        }
-    }
-
     @SerializedName("challengeImage")
     @Expose
     public String challengeImage;
