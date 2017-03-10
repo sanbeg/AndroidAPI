@@ -9,30 +9,7 @@ import java.util.List;
 public class TradeItAuthenticateResponse extends TradeItResponse {
     @SerializedName("accounts")
     @Expose
-    public List<Account> accounts = new ArrayList<Account>();
-
-    public class Account {
-        @SerializedName("accountNumber")
-        @Expose
-        public String accountNumber;
-
-        @SerializedName("name")
-        @Expose
-        public String name;
-
-        @SerializedName("accountBaseCurrency")
-        @Expose
-        public String accountBaseCurrency;
-
-        @Override
-        public String toString() {
-            return "Account{" +
-                    "accountNumber='" + accountNumber + '\'' +
-                    ", name='" + name + '\'' +
-                    ", accountBaseCurrency='" + accountBaseCurrency + '\'' +
-                    '}';
-        }
-    }
+    public List<TradeItBrokerAccount> accounts = new ArrayList<TradeItBrokerAccount>();
 
     @SerializedName("challengeImage")
     @Expose
