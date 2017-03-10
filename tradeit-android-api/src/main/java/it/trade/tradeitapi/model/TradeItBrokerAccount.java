@@ -3,7 +3,7 @@ package it.trade.tradeitapi.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Account {
+public class TradeItBrokerAccount {
     @SerializedName("accountNumber")
     @Expose
     public String accountNumber;
@@ -18,7 +18,7 @@ public class Account {
 
     @Override
     public String toString() {
-        return "Account{" +
+        return "TradeItBrokerAccount{" +
                 "accountNumber='" + accountNumber + '\'' +
                 ", name='" + name + '\'' +
                 ", accountBaseCurrency='" + accountBaseCurrency + '\'' +

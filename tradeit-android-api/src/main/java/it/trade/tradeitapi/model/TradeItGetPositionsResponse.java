@@ -13,7 +13,7 @@ public class TradeItGetPositionsResponse extends TradeItResponse {
 
     @SerializedName("positions")
     @Expose
-    public List<Position> positions = new ArrayList<Position>();
+    public List<TradeItPosition> positions = new ArrayList<TradeItPosition>();
 
     @SerializedName("totalPages")
     @Expose

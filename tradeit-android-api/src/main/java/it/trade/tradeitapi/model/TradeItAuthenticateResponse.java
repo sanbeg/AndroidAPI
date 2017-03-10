@@ -9,7 +9,7 @@ import java.util.List;
 public class TradeItAuthenticateResponse extends TradeItResponse {
     @SerializedName("accounts")
     @Expose
-    public List<Account> accounts = new ArrayList<Account>();
+    public List<TradeItBrokerAccount> accounts = new ArrayList<TradeItBrokerAccount>();
 
     @SerializedName("challengeImage")
     @Expose

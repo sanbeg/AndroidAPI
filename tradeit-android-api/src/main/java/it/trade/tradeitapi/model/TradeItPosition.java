@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Position implements Parcelable {
+public class TradeItPosition implements Parcelable {
     @SerializedName("costbasis")
     @Expose
     public Double costbasis;
@@ -49,7 +49,7 @@ public class Position implements Parcelable {
 
     @Override
     public String toString() {
-        return "Position{" +
+        return "TradeItPosition{" +
                 "costbasis=" + costbasis +
                 ", holdingType='" + holdingType + '\'' +
                 ", lastPrice=" + lastPrice +
@@ -68,7 +68,7 @@ public class Position implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Position position = (Position) o;
+        TradeItPosition position = (TradeItPosition) o;
 
         if (costbasis != null ? !costbasis.equals(position.costbasis) : position.costbasis != null)
             return false;
@@ -126,10 +126,10 @@ public class Position implements Parcelable {
         dest.writeValue(this.totalGainLossPercentage);
     }
 
-    public Position() {
+    public TradeItPosition() {
     }
 
-    protected Position(Parcel in) {
+    protected TradeItPosition(Parcel in) {
         this.costbasis = (Double) in.readValue(Double.class.getClassLoader());
         this.holdingType = in.readString();
         this.lastPrice = (Double) in.readValue(Double.class.getClassLoader());
@@ -142,15 +142,15 @@ public class Position implements Parcelable {
         this.totalGainLossPercentage = (Double) in.readValue(Double.class.getClassLoader());
     }
 
-    public static final Parcelable.Creator<Position> CREATOR = new Parcelable.Creator<Position>() {
+    public static final Parcelable.Creator<TradeItPosition> CREATOR = new Parcelable.Creator<TradeItPosition>() {
         @Override
-        public Position createFromParcel(Parcel source) {
-            return new Position(source);
+        public TradeItPosition createFromParcel(Parcel source) {
+            return new TradeItPosition(source);
         }
 
         @Override
-        public Position[] newArray(int size) {
-            return new Position[size];
+        public TradeItPosition[] newArray(int size) {
+            return new TradeItPosition[size];
         }
     };
 }
