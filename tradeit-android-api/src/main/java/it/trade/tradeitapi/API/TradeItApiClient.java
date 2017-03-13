@@ -146,6 +146,10 @@ public class TradeItApiClient {
         tradeItApi.getAllTransactionsHistory(request).enqueue(new PassthroughCallback<>(callback));
     }
 
+    public void setSessionToken(String sessionToken) {
+        this.sessionToken = sessionToken;
+    }
+
     private class PassthroughCallback<T> implements Callback<T> {
         Callback<T> callback;
 
