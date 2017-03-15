@@ -1,5 +1,8 @@
 package it.trade.tradeitapi.API;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.UUID;
 
 import it.trade.tradeitapi.model.TradeItAnswerSecurityQuestionRequest;
@@ -31,13 +34,15 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class TradeItApiClient {
-    private TradeItApi tradeItApi;
+public class TradeItApiClient implements Parcelable {
+    private transient TradeItApi tradeItApi;
     private String serverUuid;
     private TradeItLinkedLogin tradeItLinkedLogin;
     private String sessionToken;
+    private TradeItEnvironment environment;
 
     public TradeItApiClient(TradeItLinkedLogin tradeItLinkedLogin, TradeItEnvironment environment) {
+        this.environment = environment;
         this.tradeItLinkedLogin = tradeItLinkedLogin;
         TradeItRequestWithKey.API_KEY = tradeItLinkedLogin.apiKey;
 
@@ -146,6 +151,10 @@ public class TradeItApiClient {
         tradeItApi.getAllTransactionsHistory(request).enqueue(new PassthroughCallback<>(callback));
     }
 
+    public String getSessionToken() {
+        return sessionToken;
+    }
+
     public void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
     }
@@ -165,4 +174,46 @@ public class TradeItApiClient {
             callback.onFailure(call, t);
         }
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.serverUuid);
+        dest.writeParcelable(this.tradeItLinkedLogin, flags);
+        dest.writeString(this.sessionToken);
+        dest.writeInt(this.environment == null ? -1 : this.environment.ordinal());
+    }
+
+    protected TradeItApiClient(Parcel in) {
+        this.serverUuid = in.readString();
+        this.tradeItLinkedLogin = in.readParcelable(TradeItLinkedLogin.class.getClassLoader());
+        this.sessionToken = in.readString();
+        int tmpEnvironment = in.readInt();
+        this.environment = tmpEnvironment == -1 ? null : TradeItEnvironment.values()[tmpEnvironment];
+        TradeItRequestWithKey.API_KEY = tradeItLinkedLogin.apiKey;
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(environment.getBaseUrl())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        tradeItApi = retrofit.create(TradeItApi.class);
+    }
+
+    public static final Parcelable.Creator<TradeItApiClient> CREATOR = new Parcelable.Creator<TradeItApiClient>() {
+        @Override
+        public TradeItApiClient createFromParcel(Parcel source) {
+            return new TradeItApiClient(source);
+        }
+
+        @Override
+        public TradeItApiClient[] newArray(int size) {
+            return new TradeItApiClient[size];
+        }
+    };
 }
