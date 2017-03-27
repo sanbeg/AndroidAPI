@@ -1,12 +1,15 @@
 package it.trade.tradeitapi.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TradeItPreviewStockOrEtfOrderResponse extends TradeItResponse {
+public class TradeItPreviewStockOrEtfOrderResponse extends TradeItResponse implements Parcelable {
     @SerializedName("ackWarningsList")
     @Expose
     public List<String> ackWarningsList = new ArrayList<String>();
@@ -23,7 +26,7 @@ public class TradeItPreviewStockOrEtfOrderResponse extends TradeItResponse {
     @Expose
     public List<String> warningsList = new ArrayList<String>();
 
-    public class OrderDetails {
+    public static class OrderDetails implements Parcelable {
         @SerializedName("orderSymbol")
         @Expose
         public String orderSymbol;
@@ -119,6 +122,66 @@ public class TradeItPreviewStockOrEtfOrderResponse extends TradeItResponse {
                     ", estimatedTotalValue=" + estimatedTotalValue +
                     '}';
         }
+
+        @Override
+        public int describeContents() { return 0; }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(this.orderSymbol);
+            dest.writeString(this.orderAction);
+            dest.writeDouble(this.orderQuantity);
+            dest.writeString(this.orderExpiration);
+            dest.writeString(this.orderPrice);
+            dest.writeString(this.orderValueLabel);
+            dest.writeString(this.orderMessage);
+            dest.writeString(this.lastPrice);
+            dest.writeString(this.bidPrice);
+            dest.writeString(this.askPrice);
+            dest.writeString(this.timestamp);
+            dest.writeDouble(this.buyingPower);
+            dest.writeDouble(this.availableCash);
+            dest.writeDouble(this.estimatedOrderCommission);
+            dest.writeDouble(this.longHoldings);
+            dest.writeDouble(this.shortHoldings);
+            dest.writeDouble(this.estimatedOrderValue);
+            dest.writeDouble(this.estimatedTotalValue);
+        }
+
+        public OrderDetails() {}
+
+        protected OrderDetails(Parcel in) {
+            this.orderSymbol = in.readString();
+            this.orderAction = in.readString();
+            this.orderQuantity = in.readDouble();
+            this.orderExpiration = in.readString();
+            this.orderPrice = in.readString();
+            this.orderValueLabel = in.readString();
+            this.orderMessage = in.readString();
+            this.lastPrice = in.readString();
+            this.bidPrice = in.readString();
+            this.askPrice = in.readString();
+            this.timestamp = in.readString();
+            this.buyingPower = in.readDouble();
+            this.availableCash = in.readDouble();
+            this.estimatedOrderCommission = in.readDouble();
+            this.longHoldings = in.readDouble();
+            this.shortHoldings = in.readDouble();
+            this.estimatedOrderValue = in.readDouble();
+            this.estimatedTotalValue = in.readDouble();
+        }
+
+        public static final Parcelable.Creator<OrderDetails> CREATOR = new Parcelable.Creator<OrderDetails>() {
+            @Override
+            public OrderDetails createFromParcel(Parcel source) {
+                return new OrderDetails(source);
+            }
+
+            @Override
+            public OrderDetails[] newArray(int size) {
+                return new OrderDetails[size];
+            }
+        };
     }
 
     @Override
@@ -130,4 +193,36 @@ public class TradeItPreviewStockOrEtfOrderResponse extends TradeItResponse {
                 ", warningsList=" + warningsList +
                 "}, " + super.toString();
     }
+
+    @Override
+    public int describeContents() { return 0; }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeStringList(this.ackWarningsList);
+        dest.writeParcelable(this.orderDetails, flags);
+        dest.writeString(this.orderId);
+        dest.writeStringList(this.warningsList);
+    }
+
+    public TradeItPreviewStockOrEtfOrderResponse() {}
+
+    protected TradeItPreviewStockOrEtfOrderResponse(Parcel in) {
+        this.ackWarningsList = in.createStringArrayList();
+        this.orderDetails = in.readParcelable(OrderDetails.class.getClassLoader());
+        this.orderId = in.readString();
+        this.warningsList = in.createStringArrayList();
+    }
+
+    public static final Parcelable.Creator<TradeItPreviewStockOrEtfOrderResponse> CREATOR = new Parcelable.Creator<TradeItPreviewStockOrEtfOrderResponse>() {
+        @Override
+        public TradeItPreviewStockOrEtfOrderResponse createFromParcel(Parcel source) {
+            return new TradeItPreviewStockOrEtfOrderResponse(source);
+        }
+
+        @Override
+        public TradeItPreviewStockOrEtfOrderResponse[] newArray(int size) {
+            return new TradeItPreviewStockOrEtfOrderResponse[size];
+        }
+    };
 }
