@@ -31,9 +31,9 @@ public class TradeItLinkedLogin implements Parcelable {
         this.userToken = linkLoginResponse.userToken;
     }
 
-    public TradeItLinkedLogin(String broker, TradeItOAuthAccessTokenRequest oAuthAccessTokenRequest,
+    public TradeItLinkedLogin(TradeItOAuthAccessTokenRequest oAuthAccessTokenRequest,
                               TradeItOAuthAccessTokenResponse oAuthAccessTokenResponse) {
-        this.broker = broker;
+        this.broker = oAuthAccessTokenResponse.broker;
         this.apiKey = oAuthAccessTokenRequest.apiKey;
         this.userId = oAuthAccessTokenResponse.userId;
         this.userToken = oAuthAccessTokenResponse.userToken;

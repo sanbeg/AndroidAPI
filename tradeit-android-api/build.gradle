@@ -12,11 +12,12 @@ ext {
     siteUrl = 'https://github.com/tradingticket/AndroidAPI'
     gitUrl = 'https://github.com/tradingticket/AndroidAPI.git'
 
-    libraryVersion = '0.1.10'
+    libraryVersion = '0.1.11-SNAPSHOT'
 
     developerId = 'tradingticket'
     developerName = 'Trade It'
     developerEmail = 'alex@trade.it'
+
 
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
