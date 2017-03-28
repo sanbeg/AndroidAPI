@@ -106,6 +106,13 @@ public class TradeItBrokerLinker {
         tradeItKeystoreService.createKeyIfNotExists(context);
     }
 
+    public static boolean hasKeyStore() throws TradeItKeystoreServiceCreateKeyException {
+        if (tradeItKeystoreService == null) {
+            tradeItKeystoreService = new TradeItKeystoreService(TRADE_IT_LINKED_BROKERS_ALIAS);
+        }
+        return tradeItKeystoreService.keyExists();
+    }
+
     public static void saveLinkedLogin(Context context, TradeItLinkedLogin linkedLogin, String accountLabel) throws TradeItSaveLinkedLoginException {
         try {
             linkedLogin.label = accountLabel;

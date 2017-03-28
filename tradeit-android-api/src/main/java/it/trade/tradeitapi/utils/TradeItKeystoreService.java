@@ -34,7 +34,6 @@ public class TradeItKeystoreService {
 
     public TradeItKeystoreService(String alias) throws TradeItKeystoreServiceCreateKeyException {
         this.alias = alias;
-
         try {
             keyStore = KeyStore.getInstance(keyStoreType);
             keyStore.load(null);
@@ -139,8 +138,6 @@ public class TradeItKeystoreService {
             throw new TradeItKeystoreServiceDecryptException("Error decrypting the string: "+stringToDecode, e);
         }
     }
-
-
 
 
 }
