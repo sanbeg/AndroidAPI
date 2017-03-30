@@ -3,6 +3,7 @@ package it.trade.tradeitapi.utils;
 import android.content.Context;
 import android.security.KeyPairGeneratorSpec;
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,20 +26,32 @@ import it.trade.tradeitapi.exception.TradeItKeystoreServiceDeleteKeyException;
 import it.trade.tradeitapi.exception.TradeItKeystoreServiceEncryptException;
 
 public class TradeItKeystoreService {
-
     private String alias = null;
-
     private KeyStore keyStore = null;
+    private static final String keyStoreType = "AndroidKeyStore";
 
     public TradeItKeystoreService(String alias) {
         this.alias = alias;
     }
 
+    public boolean keyExists() throws TradeItKeystoreServiceCreateKeyException {
+        try {
+            keyStore = KeyStore.getInstance(keyStoreType);
+            keyStore.load(null);
+            return keyStore.containsAlias(alias);
+        } catch (Exception e) {
+            throw new TradeItKeystoreServiceCreateKeyException("Error creating key with TradeItKeystoreService", e);
+        }
+    }
+
     public void createKeyIfNotExists(Context context) throws TradeItKeystoreServiceCreateKeyException {
         try {
-            keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore = KeyStore.getInstance(keyStoreType);
             keyStore.load(null);
+
             if (!keyStore.containsAlias(alias)) {
+                long startTime = System.currentTimeMillis();
+
                 Calendar start = Calendar.getInstance();
                 Calendar end = Calendar.getInstance();
                 end.add(Calendar.YEAR, 50);
@@ -48,14 +61,15 @@ public class TradeItKeystoreService {
                         .setSerialNumber(BigInteger.ONE)
                         .setStartDate(start.getTime())
                         .setEndDate(end.getTime())
-                        .setKeySize(4096)
+                        .setKeySize(2048)
                         .build();
                 KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", "AndroidKeyStore");
                 generator.initialize(spec);
                 generator.generateKeyPair();
+
+                Log.d("TRADEIT", "=====> Elapsed time to generate key: " + (System.currentTimeMillis() - startTime) + "ms");
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new TradeItKeystoreServiceCreateKeyException("Error creating key with TradeItKeystoreService", e);
         }
     }
