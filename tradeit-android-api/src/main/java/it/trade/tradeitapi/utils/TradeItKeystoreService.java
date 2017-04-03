@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,29 +27,33 @@ import it.trade.tradeitapi.exception.TradeItKeystoreServiceDeleteKeyException;
 import it.trade.tradeitapi.exception.TradeItKeystoreServiceEncryptException;
 
 public class TradeItKeystoreService {
-    private String alias = null;
-    private KeyStore keyStore = null;
+
+    private final String alias;
+    private final KeyStore keyStore;
     private static final String keyStoreType = "AndroidKeyStore";
 
-    public TradeItKeystoreService(String alias) {
+    public TradeItKeystoreService(String alias) throws TradeItKeystoreServiceCreateKeyException {
         this.alias = alias;
-    }
 
-    public boolean keyExists() throws TradeItKeystoreServiceCreateKeyException {
         try {
             keyStore = KeyStore.getInstance(keyStoreType);
             keyStore.load(null);
-            return keyStore.containsAlias(alias);
         } catch (Exception e) {
-            throw new TradeItKeystoreServiceCreateKeyException("Error creating key with TradeItKeystoreService", e);
+            throw new TradeItKeystoreServiceCreateKeyException("Error creating key store with TradeItKeystoreService", e);
+        }
+    }
+
+    public boolean keyExists() {
+        try {
+            return keyStore.containsAlias(alias);
+        } catch (KeyStoreException e) {
+            // this should never happen, as long as keyStore was loaded in the constructor.
+            return false;
         }
     }
 
     public void createKeyIfNotExists(Context context) throws TradeItKeystoreServiceCreateKeyException {
         try {
-            keyStore = KeyStore.getInstance(keyStoreType);
-            keyStore.load(null);
-
             if (!keyStore.containsAlias(alias)) {
                 long startTime = System.currentTimeMillis();
 

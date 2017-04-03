@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,10 +44,11 @@ public class TradeItBrokerLinker {
     public static final String TRADE_IT_SHARED_PREFS_KEY = "TRADE_IT_SHARED_PREFS_KEY";
     private static final String TRADE_IT_LINKED_BROKERS_KEY = "TRADE_IT_LINKED_BROKERS_KEY";
     private TradeItBrokerLinkApi tradeItBrokerLinkApi;
-    private static TradeItKeystoreService tradeItKeystoreService = new TradeItKeystoreService(TRADE_IT_LINKED_BROKERS_ALIAS);
+    private static TradeItKeystoreService tradeItKeystoreService;
 
     public TradeItBrokerLinker(String apiKey, TradeItEnvironment environment) {
         TradeItRequestWithKey.API_KEY = apiKey;
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(environment.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
@@ -97,7 +99,11 @@ public class TradeItBrokerLinker {
     }
 
     public static void initKeyStore(Context context) throws TradeItKeystoreServiceCreateKeyException {
-            tradeItKeystoreService.createKeyIfNotExists(context);
+        if (tradeItKeystoreService == null) {
+            tradeItKeystoreService = new TradeItKeystoreService(TRADE_IT_LINKED_BROKERS_ALIAS);
+        }
+
+        tradeItKeystoreService.createKeyIfNotExists(context);
     }
 
     public static void saveLinkedLogin(Context context, TradeItLinkedLogin linkedLogin, String accountLabel) throws TradeItSaveLinkedLoginException {
@@ -112,9 +118,9 @@ public class TradeItBrokerLinker {
             String encryptedString = tradeItKeystoreService.encryptString(linkedLoginJson);
             linkedLoginEncryptedJsonSet.add(encryptedString);
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putStringSet(TRADE_IT_LINKED_BROKERS_KEY, linkedLoginEncryptedJsonSet);
-            editor.commit();
+            sharedPreferences.edit()
+                    .putStringSet(TRADE_IT_LINKED_BROKERS_KEY, linkedLoginEncryptedJsonSet)
+                    .commit();
         } catch (Exception e) {
             throw new TradeItSaveLinkedLoginException("Error saving linkedLogin for accountLabel: " + accountLabel, e);
         }
@@ -123,7 +129,7 @@ public class TradeItBrokerLinker {
     public static List<TradeItLinkedLogin> getLinkedLogins(Context context) throws TradeItRetrieveLinkedLoginException {
         try {
             SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
-            Set<String> linkedLoginEncryptedJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_BROKERS_KEY, new HashSet<String>());
+            Set<String> linkedLoginEncryptedJsonSet = sharedPreferences.getStringSet(TRADE_IT_LINKED_BROKERS_KEY, new HashSet<String>());
 
             List<TradeItLinkedLogin> linkedLoginList = new ArrayList<>();
             Gson gson = new Gson();
@@ -144,7 +150,7 @@ public class TradeItBrokerLinker {
     public static void updateLinkedLogin(Context context, TradeItLinkedLogin linkedLogin) throws TradeItUpdateLinkedLoginException {
         try {
             SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
-            Set<String> linkedLoginEncryptedJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_BROKERS_KEY, new HashSet<String>());
+            Set<String> linkedLoginEncryptedJsonSet = sharedPreferences.getStringSet(TRADE_IT_LINKED_BROKERS_KEY, new HashSet<String>());
             Gson gson = new Gson();
 
             for (String linkedLoginEncryptedJson : linkedLoginEncryptedJsonSet) {
@@ -157,9 +163,9 @@ public class TradeItBrokerLinker {
                     break;
                 }
             }
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putStringSet(TRADE_IT_LINKED_BROKERS_KEY, linkedLoginEncryptedJsonSet);
-            editor.commit();
+            sharedPreferences.edit()
+                    .putStringSet(TRADE_IT_LINKED_BROKERS_KEY, linkedLoginEncryptedJsonSet)
+                    .commit();
         } catch (Exception e) {
             throw new TradeItUpdateLinkedLoginException("Error updating linkedLogin " + linkedLogin.uuid, e);
         }
@@ -168,7 +174,7 @@ public class TradeItBrokerLinker {
     public static void deleteLinkedLogin(Context context, TradeItLinkedLogin linkedLogin) throws TradeItDeleteLinkedLoginException {
         try {
             SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
-            Set<String> linkedLoginEncryptedJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_BROKERS_KEY, new HashSet<String>());
+            Set<String> linkedLoginEncryptedJsonSet = sharedPreferences.getStringSet(TRADE_IT_LINKED_BROKERS_KEY, new HashSet<String>());
 
             for (String linkedLoginEncryptedJson : linkedLoginEncryptedJsonSet) {
                 String linkedLoginJson = tradeItKeystoreService.decryptString(linkedLoginEncryptedJson);
@@ -178,24 +184,21 @@ public class TradeItBrokerLinker {
                 }
             }
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putStringSet(TRADE_IT_LINKED_BROKERS_KEY, linkedLoginEncryptedJsonSet);
-            editor.commit();
+            sharedPreferences.edit()
+                    .putStringSet(TRADE_IT_LINKED_BROKERS_KEY, linkedLoginEncryptedJsonSet)
+                    .commit();
         } catch (Exception e) {
-            throw new TradeItDeleteLinkedLoginException("Error deleting linkedLogin "+ linkedLogin.uuid, e);
+            throw new TradeItDeleteLinkedLoginException("Error deleting linkedLogin " + linkedLogin.uuid, e);
         }
     }
 
     public static void deleteAllLinkedLogins(Context context) throws TradeItDeleteLinkedLoginException {
         try {
             SharedPreferences sharedPreferences = context.getSharedPreferences(TRADE_IT_SHARED_PREFS_KEY, Context.MODE_PRIVATE);
-            Set<String> linkedLoginEncryptedJsonSet =  sharedPreferences.getStringSet(TRADE_IT_LINKED_BROKERS_KEY, new HashSet<String>());
 
-            linkedLoginEncryptedJsonSet.clear();
-
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putStringSet(TRADE_IT_LINKED_BROKERS_KEY, linkedLoginEncryptedJsonSet);
-            editor.commit();
+            sharedPreferences.edit()
+                    .putStringSet(TRADE_IT_LINKED_BROKERS_KEY, Collections.<String>emptySet())
+                    .commit();
         } catch (Exception e) {
             throw new TradeItDeleteLinkedLoginException("Error deleting all linkedLogins ", e);
         }
